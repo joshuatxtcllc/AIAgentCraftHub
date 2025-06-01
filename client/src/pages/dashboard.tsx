@@ -6,6 +6,7 @@ import { TemplateLibrary } from '@/components/template-library';
 import { ChatInterface } from '@/components/chat-interface';
 import { AssistantConfig } from '@/components/assistant-config';
 import { ActivityFeed } from '@/components/activity-feed';
+import { useAssistantStore } from '@/store/assistant-store';
 import { type AssistantStats } from '@shared/schema';
 import { 
   CheckCircle, 
@@ -17,13 +18,27 @@ import {
 } from 'lucide-react';
 
 export default function Dashboard() {
+  const { setCurrentAssistant } = useAssistantStore();
   const { data: stats, isLoading: statsLoading } = useQuery<AssistantStats>({
     queryKey: ['/api/stats'],
   });
 
   const handleCreateAssistant = () => {
-    // TODO: Implement create assistant modal
-    console.log('Create new assistant');
+    // Create a new assistant object with default values that matches the Assistant type
+    const newAssistant = {
+      id: 0, // Will be set by the server
+      name: '',
+      description: null,
+      model: 'gpt-4',
+      temperature: 30,
+      capabilities: ['conversation', 'analysis'],
+      instructions: null,
+      isActive: true,
+      userId: 1,
+      createdAt: new Date()
+    };
+    
+    setCurrentAssistant(newAssistant);
   };
 
   const handleSaveDraft = () => {
