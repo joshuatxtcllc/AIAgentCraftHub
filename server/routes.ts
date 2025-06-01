@@ -260,6 +260,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      // Get assistant details for AI configuration
+      const assistant = await storage.getAssistant(assistantId);
+      if (!assistant) {
+        return res.status(404).json({ message: "Assistant not found" });
+      }
+      
       // Add user message
       const userMessage: ChatMessage = {
         id: `msg_${Date.now()}_user`,
@@ -268,29 +274,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: new Date().toISOString()
       };
       
-      // Generate AI response (mock for now)
-      const aiMessage: ChatMessage = {
-        id: `msg_${Date.now()}_ai`,
-        role: "assistant", 
-        content: generateMockResponse(message),
-        timestamp: new Date().toISOString()
-      };
+      try {
+        // Generate AI response using real AI service
+        const aiResponseContent = await aiService.generateResponse(
+          [...(conversation.messages || []), userMessage],
+          assistant.model,
+          assistant.temperature || 30,
+          assistant.instructions || undefined
+        );
+        
+        const aiMessage: ChatMessage = {
+          id: `msg_${Date.now()}_ai`,
+          role: "assistant", 
+          content: aiResponseContent,
+          timestamp: new Date().toISOString()
+        };
+        
+        const updatedMessages = [...(conversation.messages || []), userMessage, aiMessage];
+        
+        // Update conversation
+        const updatedConversation = await storage.updateConversation(conversation.id, {
+          messages: updatedMessages
+        });
+        
+        // Create activity
+        await storage.createActivity({
+          type: "conversation",
+          message: `New conversation with ${assistant.name}`,
+          userId: 1
+        });
+        
+        res.json({
+          conversation: updatedConversation,
+          response: aiMessage
+        });
+        
+      } catch (aiError) {
+        console.error("AI Service Error:", aiError);
+        
+        // Fallback to a helpful error message
+        const errorMessage: ChatMessage = {
+          id: `msg_${Date.now()}_error`,
+          role: "assistant",
+          content: `I apologize, but I'm having trouble connecting to the AI service right now. ${aiError instanceof Error ? aiError.message : 'Please try again in a moment.'}`,
+          timestamp: new Date().toISOString()
+        };
+        
+        const updatedMessages = [...(conversation.messages || []), userMessage, errorMessage];
+        
+        const updatedConversation = await storage.updateConversation(conversation.id, {
+          messages: updatedMessages
+        });
+        
+        res.json({
+          conversation: updatedConversation,
+          response: errorMessage
+        });
+      }
       
-      const updatedMessages = [...(conversation.messages || []), userMessage, aiMessage];
-      
-      // Update conversation
-      const updatedConversation = await storage.updateConversation(conversation.id, {
-        messages: updatedMessages
-      });
-      
-      res.json({
-        conversation: updatedConversation,
-        response: aiMessage
-      });
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid chat data", errors: error.errors });
       }
+      console.error("Chat route error:", error);
       res.status(500).json({ message: "Failed to process chat message" });
     }
   });
