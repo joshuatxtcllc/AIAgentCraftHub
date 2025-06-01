@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 216 17% 98%; /* #F8FAFC */
+  --foreground: 210 22% 11%; /* #1E293B */
+  --muted: 216 17% 96%; 
+  --muted-foreground: 215 16% 47%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 210 22% 11%;
+  --card: 0 0% 100%; /* #FFFFFF */
+  --card-foreground: 210 22% 11%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --primary: 239 84% 67%; /* #6366F1 */
+  --primary-foreground: 210 40% 98%;
+  --secondary: 160 84% 39%; /* #10B981 */
+  --secondary-foreground: 0 0% 98%;
+  --accent: 43 96% 56%; /* #F59E0B */
+  --accent-foreground: 26 83% 14%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 239 84% 67%;
+  --radius: 0.5rem;
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 210 22% 11%;
+  --sidebar-primary: 239 84% 67%;
+  --sidebar-primary-foreground: 210 40% 98%;
+  --sidebar-accent: 216 17% 96%;
+  --sidebar-accent-foreground: 210 22% 11%;
+  --sidebar-border: 214 32% 91%;
+  --sidebar-ring: 239 84% 67%;
+}
+
+.dark {
+  --background: 224 71% 4%;
+  --foreground: 213 31% 91%;
+  --muted: 223 47% 11%;
+  --muted-foreground: 215 14% 52%;
+  --popover: 224 71% 4%;
+  --popover-foreground: 213 31% 91%;
+  --card: 224 71% 4%;
+  --card-foreground: 213 31% 91%;
+  --border: 216 34% 17%;
+  --input: 216 34% 17%;
+  --primary: 239 84% 67%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 160 84% 39%;
+  --secondary-foreground: 0 0% 98%;
+  --accent: 43 96% 56%;
+  --accent-foreground: 26 83% 14%;
+  --destructive: 0 63% 31%;
+  --destructive-foreground: 213 31% 91%;
+  --ring: 216 34% 17%;
+  --sidebar-background: 224 71% 4%;
+  --sidebar-foreground: 213 31% 91%;
+  --sidebar-primary: 239 84% 67%;
+  --sidebar-primary-foreground: 210 40% 98%;
+  --sidebar-accent: 223 47% 11%;
+  --sidebar-accent-foreground: 213 31% 91%;
+  --sidebar-border: 216 34% 17%;
+  --sidebar-ring: 239 84% 67%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .drag-handle {
+    cursor: grab;
+  }
+  
+  .drag-handle:active {
+    cursor: grabbing;
+  }
+  
+  .gradient-bg {
+    background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  }
+  
+  .chat-bubble {
+    animation: slideUp 0.3s ease-out;
+  }
+  
+  @keyframes slideUp {
+    from { 
+      opacity: 0; 
+      transform: translateY(10px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+}
