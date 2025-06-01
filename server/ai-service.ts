@@ -53,10 +53,10 @@ export class AIService {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: model === "gpt-4" ? "gpt-4" : "gpt-3.5-turbo",
+          model: model === "gpt-4" ? "gpt-4o" : "gpt-3.5-turbo", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
           messages: openAIMessages,
           temperature: temperature / 100, // Convert from 0-100 to 0-1 scale
-          max_tokens: 1000,
+          max_tokens: 1500,
         }),
       });
 

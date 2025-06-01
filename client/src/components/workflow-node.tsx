@@ -49,7 +49,6 @@ export function WorkflowNodeComponent({
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('Node clicked:', node.id);
     onSelect?.(node.id);
   };
 

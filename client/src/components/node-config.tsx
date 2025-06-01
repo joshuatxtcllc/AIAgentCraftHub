@@ -17,11 +17,7 @@ export function NodeConfig({ nodeId }: NodeConfigProps) {
   const { workflowNodes, updateWorkflowNode, setSelectedNodeId } = useAssistantStore();
   const [config, setConfig] = useState<Partial<WorkflowNode['data']>>({});
   
-  console.log('NodeConfig rendered with nodeId:', nodeId);
-  console.log('Available workflow nodes:', workflowNodes);
-  
   const selectedNode = nodeId ? workflowNodes.find(n => n.id === nodeId) : null;
-  console.log('Selected node:', selectedNode);
 
   useEffect(() => {
     if (selectedNode) {
