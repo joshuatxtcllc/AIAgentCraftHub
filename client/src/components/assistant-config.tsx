@@ -36,12 +36,12 @@ export function AssistantConfig() {
   const queryClient = useQueryClient();
   
   const [config, setConfig] = useState<InsertAssistant>({
-    name: 'Customer Support Bot',
-    description: 'A helpful customer support assistant',
+    name: '',
+    description: '',
     model: 'gpt-4',
     temperature: 30,
-    capabilities: ['Web Search', 'File Analysis', 'Data Analysis'],
-    instructions: 'You are a helpful customer support assistant. Always be polite, professional, and try to resolve issues efficiently.',
+    capabilities: [],
+    instructions: '',
     isActive: false,
     userId: 1, // Default user
   });
@@ -140,10 +140,25 @@ export function AssistantConfig() {
     }));
   };
 
+  if (!currentAssistant) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">Assistant Settings</CardTitle>
+        </CardHeader>
+        <CardContent className="text-center py-8">
+          <p className="text-muted-foreground">Click "Create Assistant" to get started</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold">Assistant Settings</CardTitle>
+        <CardTitle className="text-lg font-semibold">
+          {currentAssistant.id === 0 ? 'Create New Assistant' : 'Edit Assistant'}
+        </CardTitle>
       </CardHeader>
       
       <CardContent className="space-y-4">
