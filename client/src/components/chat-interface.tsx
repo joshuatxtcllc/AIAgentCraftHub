@@ -28,11 +28,11 @@ export function ChatInterface() {
   };
 
   const sendMessageMutation = useMutation({
-    mutationFn: async ({ message, assistantId }: { message: string; assistantId: number }) => {
+    mutationFn: async ({ message, assistantId, conversationId }: { message: string; assistantId: number; conversationId?: number }) => {
       const response = await apiRequest('POST', '/api/chat', {
         message,
         assistantId,
-        conversationId: currentConversationId
+        conversationId
       });
       return response.json();
     },
@@ -52,11 +52,12 @@ export function ChatInterface() {
   });
 
   const handleSendMessage = () => {
-    if (!input.trim() || sendMessageMutation.isPending) return;
+    if (!input.trim() || sendMessageMutation.isPending || !currentAssistant?.id) return;
     
     sendMessageMutation.mutate({
       message: input,
-      assistantId: currentAssistant.id
+      assistantId: currentAssistant.id,
+      conversationId: currentConversationId || undefined
     });
   };
 

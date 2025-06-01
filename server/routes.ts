@@ -56,6 +56,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/assistants/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      
+      if (id === 0) {
+        return res.status(400).json({ message: "Invalid assistant ID" });
+      }
+      
       const assistantData = insertAssistantSchema.partial().parse(req.body);
       const assistant = await storage.updateAssistant(id, assistantData);
       
@@ -65,6 +70,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(assistant);
     } catch (error) {
+      console.error("Update assistant error:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid assistant data", errors: error.errors });
       }

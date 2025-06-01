@@ -63,7 +63,7 @@ export function AssistantConfig() {
 
   const saveAssistantMutation = useMutation({
     mutationFn: async (assistantData: InsertAssistant) => {
-      if (currentAssistant) {
+      if (currentAssistant && currentAssistant.id > 0) {
         const response = await apiRequest('PUT', `/api/assistants/${currentAssistant.id}`, assistantData);
         return response.json();
       } else {
