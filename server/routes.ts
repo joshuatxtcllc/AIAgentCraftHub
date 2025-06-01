@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { aiService } from "./ai-service";
 import { 
   insertAssistantSchema, insertWorkflowSchema, insertConversationSchema, 
   insertActivitySchema, type ChatMessage 

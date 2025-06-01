@@ -14,7 +14,7 @@ export const assistants = pgTable("assistants", {
   description: text("description"),
   model: text("model").notNull().default("gpt-4"),
   temperature: integer("temperature").default(30), // 0-100 scale
-  capabilities: jsonb("capabilities").$type<string[]>().default([]),
+  capabilities: text("capabilities").array().default([]),
   instructions: text("instructions"),
   isActive: boolean("is_active").default(false),
   userId: integer("user_id").references(() => users.id),

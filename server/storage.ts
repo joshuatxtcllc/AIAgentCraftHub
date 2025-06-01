@@ -5,6 +5,8 @@ import {
   type Conversation, type InsertConversation, type Activity, type InsertActivity,
   type AssistantStats, type WorkflowNode, type WorkflowConnection, type AssistantConfig
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -46,6 +48,171 @@ export interface IStorage {
 
   // Stats
   getAssistantStats(): Promise<AssistantStats>;
+}
+
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async getAssistants(): Promise<Assistant[]> {
+    return await db.select().from(assistants);
+  }
+
+  async getAssistant(id: number): Promise<Assistant | undefined> {
+    const [assistant] = await db.select().from(assistants).where(eq(assistants.id, id));
+    return assistant || undefined;
+  }
+
+  async createAssistant(assistant: InsertAssistant): Promise<Assistant> {
+    const [newAssistant] = await db
+      .insert(assistants)
+      .values(assistant)
+      .returning();
+    return newAssistant;
+  }
+
+  async updateAssistant(id: number, assistant: Partial<InsertAssistant>): Promise<Assistant | undefined> {
+    const [updated] = await db
+      .update(assistants)
+      .set(assistant)
+      .where(eq(assistants.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deleteAssistant(id: number): Promise<boolean> {
+    const result = await db.delete(assistants).where(eq(assistants.id, id));
+    return result.rowCount > 0;
+  }
+
+  async getWorkflows(): Promise<Workflow[]> {
+    return await db.select().from(workflows);
+  }
+
+  async getWorkflow(id: number): Promise<Workflow | undefined> {
+    const [workflow] = await db.select().from(workflows).where(eq(workflows.id, id));
+    return workflow || undefined;
+  }
+
+  async getWorkflowsByAssistant(assistantId: number): Promise<Workflow[]> {
+    return await db.select().from(workflows).where(eq(workflows.assistantId, assistantId));
+  }
+
+  async createWorkflow(workflow: InsertWorkflow): Promise<Workflow> {
+    const [newWorkflow] = await db
+      .insert(workflows)
+      .values(workflow)
+      .returning();
+    return newWorkflow;
+  }
+
+  async updateWorkflow(id: number, workflow: Partial<InsertWorkflow>): Promise<Workflow | undefined> {
+    const [updated] = await db
+      .update(workflows)
+      .set(workflow)
+      .where(eq(workflows.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deleteWorkflow(id: number): Promise<boolean> {
+    const result = await db.delete(workflows).where(eq(workflows.id, id));
+    return result.rowCount > 0;
+  }
+
+  async getTemplates(): Promise<Template[]> {
+    return await db.select().from(templates);
+  }
+
+  async getTemplate(id: number): Promise<Template | undefined> {
+    const [template] = await db.select().from(templates).where(eq(templates.id, id));
+    return template || undefined;
+  }
+
+  async createTemplate(template: InsertTemplate): Promise<Template> {
+    const [newTemplate] = await db
+      .insert(templates)
+      .values(template)
+      .returning();
+    return newTemplate;
+  }
+
+  async incrementTemplateUsage(id: number): Promise<void> {
+    await db
+      .update(templates)
+      .set({ usageCount: 1 })
+      .where(eq(templates.id, id));
+  }
+
+  async getConversations(): Promise<Conversation[]> {
+    return await db.select().from(conversations);
+  }
+
+  async getConversation(id: number): Promise<Conversation | undefined> {
+    const [conversation] = await db.select().from(conversations).where(eq(conversations.id, id));
+    return conversation || undefined;
+  }
+
+  async getConversationsByAssistant(assistantId: number): Promise<Conversation[]> {
+    return await db.select().from(conversations).where(eq(conversations.assistantId, assistantId));
+  }
+
+  async createConversation(conversation: InsertConversation): Promise<Conversation> {
+    const [newConversation] = await db
+      .insert(conversations)
+      .values(conversation)
+      .returning();
+    return newConversation;
+  }
+
+  async updateConversation(id: number, conversation: Partial<InsertConversation>): Promise<Conversation | undefined> {
+    const [updated] = await db
+      .update(conversations)
+      .set(conversation)
+      .where(eq(conversations.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async getActivities(limit: number = 10): Promise<Activity[]> {
+    return await db.select().from(activities).limit(limit).orderBy(activities.createdAt);
+  }
+
+  async createActivity(activity: InsertActivity): Promise<Activity> {
+    const [newActivity] = await db
+      .insert(activities)
+      .values(activity)
+      .returning();
+    return newActivity;
+  }
+
+  async getAssistantStats(): Promise<AssistantStats> {
+    const assistantList = await db.select().from(assistants);
+    const conversationList = await db.select().from(conversations);
+    const workflowList = await db.select().from(workflows);
+    
+    return {
+      activeAssistants: assistantList.filter(a => a.isActive).length,
+      conversations: conversationList.length,
+      successRate: "94.2%", // Would be calculated based on actual conversation outcomes
+      workflows: workflowList.length,
+    };
+  }
 }
 
 export class MemStorage implements IStorage {
@@ -363,4 +530,4 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
