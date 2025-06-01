@@ -28,11 +28,10 @@ export function ChatInterface() {
   };
 
   const sendMessageMutation = useMutation({
-    mutationFn: async ({ message, assistantId, conversationId }: { message: string; assistantId: number; conversationId?: number }) => {
+    mutationFn: async ({ message, assistantId }: { message: string; assistantId: number }) => {
       const response = await apiRequest('POST', '/api/chat', {
         message,
-        assistantId,
-        conversationId
+        assistantId
       });
       return response.json();
     },
@@ -56,8 +55,7 @@ export function ChatInterface() {
     
     sendMessageMutation.mutate({
       message: input,
-      assistantId: currentAssistant.id,
-      conversationId: currentConversationId || undefined
+      assistantId: currentAssistant.id
     });
   };
 
