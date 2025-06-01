@@ -59,6 +59,7 @@ export function useDragDrop() {
         data: {}
       };
 
+      console.log('Adding workflow node:', newNode);
       addWorkflowNode(newNode);
     } catch (error) {
       console.error('Failed to parse drop data:', error);

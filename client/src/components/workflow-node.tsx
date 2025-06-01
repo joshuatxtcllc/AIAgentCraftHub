@@ -47,7 +47,9 @@ export function WorkflowNodeComponent({
   const config = nodeTypeConfig[node.type];
   const Icon = config.icon;
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log('Node clicked:', node.id);
     onSelect?.(node.id);
   };
 
