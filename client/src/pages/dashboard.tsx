@@ -6,6 +6,7 @@ import { TemplateLibrary } from '@/components/template-library';
 import { ChatInterface } from '@/components/chat-interface';
 import { AssistantConfig } from '@/components/assistant-config';
 import { ActivityFeed } from '@/components/activity-feed';
+import { NodeConfig } from '@/components/node-config';
 import { useAssistantStore } from '@/store/assistant-store';
 import { type AssistantStats } from '@shared/schema';
 import { 
@@ -18,7 +19,7 @@ import {
 } from 'lucide-react';
 
 export default function Dashboard() {
-  const { setCurrentAssistant } = useAssistantStore();
+  const { setCurrentAssistant, selectedNodeId } = useAssistantStore();
   const { data: stats, isLoading: statsLoading } = useQuery<AssistantStats>({
     queryKey: ['/api/stats'],
   });
@@ -121,6 +122,7 @@ export default function Dashboard() {
             <div className="space-y-6">
               <ChatInterface />
               <AssistantConfig />
+              <NodeConfig nodeId={selectedNodeId} />
               <ActivityFeed />
             </div>
           </div>
