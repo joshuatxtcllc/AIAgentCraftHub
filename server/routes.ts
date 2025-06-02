@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { aiService } from "./ai-service";
+import { createWorkflowEngine, WorkflowContext } from "./workflow-engine";
 import { 
   insertAssistantSchema, insertWorkflowSchema, insertConversationSchema, 
   insertActivitySchema, type ChatMessage 
@@ -281,18 +282,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       try {
-        // Generate AI response using real AI service
-        const aiResponseContent = await aiService.generateResponse(
-          [...(conversation.messages || []), userMessage],
-          assistant.model,
-          assistant.temperature || 30,
-          assistant.instructions || undefined
-        );
+        // Check if assistant has workflows to execute
+        const workflows = await storage.getWorkflowsByAssistant(assistantId);
+        let finalResponse = "";
+        let workflowExecuted = false;
+        
+        if (workflows.length > 0) {
+          // Execute workflows with message triggers
+          for (const workflow of workflows) {
+            if (workflow.nodes && workflow.connections) {
+              const engine = createWorkflowEngine(workflow.nodes, workflow.connections);
+              
+              // Find trigger nodes that respond to messages
+              const triggerNodes = workflow.nodes.filter(node => 
+                node.type === 'trigger' && 
+                (node.data.triggerType === 'message' || node.data.triggerType === 'manual')
+              );
+              
+              for (const triggerNode of triggerNodes) {
+                const context: WorkflowContext = {
+                  variables: {},
+                  messages: [...(conversation.messages || []), userMessage],
+                  userId: 1,
+                  assistantId: assistantId
+                };
+                
+                try {
+                  const resultContext = await engine.executeWorkflow(triggerNode.id, context);
+                  
+                  // Check if workflow produced any assistant messages
+                  const workflowMessages = resultContext.messages.filter(msg => 
+                    msg.role === 'assistant' && 
+                    msg.timestamp > userMessage.timestamp
+                  );
+                  
+                  if (workflowMessages.length > 0) {
+                    finalResponse = workflowMessages[workflowMessages.length - 1].content;
+                    workflowExecuted = true;
+                    break;
+                  }
+                } catch (workflowError) {
+                  console.error(`Workflow execution error:`, workflowError);
+                }
+              }
+              
+              if (workflowExecuted) break;
+            }
+          }
+        }
+        
+        // If no workflow produced a response, use direct AI service
+        if (!workflowExecuted) {
+          finalResponse = await aiService.generateResponse(
+            [...(conversation.messages || []), userMessage],
+            assistant.model,
+            assistant.temperature || 30,
+            assistant.instructions || undefined
+          );
+        }
         
         const aiMessage: ChatMessage = {
           id: `msg_${Date.now()}_ai`,
           role: "assistant", 
-          content: aiResponseContent,
+          content: finalResponse,
           timestamp: new Date().toISOString()
         };
         
@@ -306,13 +358,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Create activity
         await storage.createActivity({
           type: "conversation",
-          message: `New conversation with ${assistant.name}`,
+          message: `${workflowExecuted ? 'Workflow-driven' : 'Direct'} conversation with ${assistant.name}`,
           userId: 1
         });
         
         res.json({
           conversation: updatedConversation,
-          response: aiMessage
+          response: aiMessage,
+          workflowExecuted
         });
         
       } catch (aiError) {
@@ -365,6 +418,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(stats);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
+  // Workflow execution routes
+  app.post("/api/workflows/:id/execute", async (req, res) => {
+    try {
+      const workflowId = parseInt(req.params.id);
+      const { trigger, variables = {} } = req.body;
+      
+      const workflow = await storage.getWorkflow(workflowId);
+      if (!workflow) {
+        return res.status(404).json({ error: "Workflow not found" });
+      }
+
+      if (!workflow.nodes || !workflow.connections) {
+        return res.status(400).json({ error: "Workflow has no nodes or connections" });
+      }
+
+      const engine = createWorkflowEngine(workflow.nodes, workflow.connections);
+      
+      // Find trigger node
+      const triggerNode = workflow.nodes.find(node => 
+        node.type === 'trigger' && 
+        (trigger ? node.id === trigger : true)
+      );
+      
+      if (!triggerNode) {
+        return res.status(400).json({ error: "No trigger node found" });
+      }
+
+      const context: WorkflowContext = {
+        variables,
+        messages: [],
+        userId: 1,
+        assistantId: workflow.assistantId || undefined
+      };
+
+      const result = await engine.executeWorkflow(triggerNode.id, context);
+      
+      // Create activity
+      await storage.createActivity({
+        type: "workflow_execution",
+        message: `Executed workflow: ${workflow.name}`,
+        userId: 1
+      });
+
+      res.json({
+        success: true,
+        context: result,
+        executedNodes: Object.keys(result.variables).length > 0 ? "Variables updated" : "No variables updated",
+        messages: result.messages
+      });
+      
+    } catch (error) {
+      console.error("Workflow execution error:", error);
+      res.status(500).json({ 
+        error: "Failed to execute workflow",
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 
