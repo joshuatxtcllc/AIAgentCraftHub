@@ -116,6 +116,71 @@ export function WorkflowBuilder() {
     }
   };
 
+  const handleTestWorkflow = async () => {
+    if (workflowNodes.length === 0) {
+      alert('Please add some nodes to test the workflow');
+      return;
+    }
+
+    const triggerNode = workflowNodes.find(node => node.type === 'trigger');
+    if (!triggerNode) {
+      alert('Please add a trigger node to test the workflow');
+      return;
+    }
+
+    try {
+      // Create a temporary workflow for testing
+      const testWorkflow = {
+        name: 'Test Workflow',
+        description: 'Temporary workflow for testing',
+        assistantId: selectedAssistant?.id || null,
+        nodes: workflowNodes,
+        connections: workflowConnections
+      };
+
+      // Save workflow first if it doesn't exist
+      const response = await fetch('/api/workflows', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(testWorkflow),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create test workflow');
+      }
+
+      const savedWorkflow = await response.json();
+
+      // Execute the workflow
+      const executeResponse = await fetch(`/api/workflows/${savedWorkflow.id}/execute`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          trigger: triggerNode.id,
+          variables: { test_message: 'Hello from workflow test!' }
+        }),
+      });
+
+      if (!executeResponse.ok) {
+        throw new Error('Failed to execute workflow');
+      }
+
+      const result = await executeResponse.json();
+      
+      // Show results
+      console.log('Workflow execution result:', result);
+      alert(`Workflow executed successfully!\n\nMessages generated: ${result.messages?.length || 0}\nVariables updated: ${Object.keys(result.context?.variables || {}).length}`);
+
+    } catch (error) {
+      console.error('Workflow test error:', error);
+      alert('Failed to test workflow: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    }
+  };
+
   const handleSaveWorkflow = () => {
     // TODO: Implement workflow saving
     console.log('Saving workflow:', { workflowNodes, workflowConnections });
@@ -130,6 +195,10 @@ export function WorkflowBuilder() {
             <Button variant="outline" size="sm">
               <Layers className="w-4 h-4 mr-2" />
               Templates
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleTestWorkflow}>
+              <Play className="w-4 h-4 mr-2" />
+              Test Workflow
             </Button>
             <Button size="sm" onClick={handleSaveWorkflow}>
               <Save className="w-4 h-4 mr-2" />
