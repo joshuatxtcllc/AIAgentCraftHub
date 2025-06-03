@@ -52,12 +52,11 @@ export function TemplateLibrary() {
       });
     },
   });
+  const isMobile = useIsMobile();
 
   const handleUseTemplate = (templateId: number) => {
     useTemplateMutation.mutate(templateId);
   };
-
-  const isMobile = useIsMobile();
 
   if (isLoading) {
     return (
