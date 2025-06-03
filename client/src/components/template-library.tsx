@@ -57,6 +57,8 @@ export function TemplateLibrary() {
     useTemplateMutation.mutate(templateId);
   };
 
+  const isMobile = useIsMobile();
+
   if (isLoading) {
     return (
       <Card>
@@ -89,8 +91,6 @@ export function TemplateLibrary() {
       </Card>
     );
   }
-
-  const isMobile = useIsMobile()
 
   return (
     <Card>
