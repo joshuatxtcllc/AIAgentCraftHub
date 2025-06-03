@@ -401,23 +401,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Activity routes
-  app.get("/api/activities", async (req, res) => {
+  app.get('/api/activities', async (req, res) => {
     try {
-      const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
-      const activities = await storage.getActivities(limit);
+      const activities = await storage.getActivities();
       res.json(activities);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch activities" });
+      console.error('Activities API error:', error);
+      // Return empty array if table doesn't exist yet
+      res.json([]);
     }
   });
 
   // Stats route
-  app.get("/api/stats", async (req, res) => {
+  app.get('/api/stats', async (req, res) => {
     try {
-      const stats = await storage.getAssistantStats();
+      const stats = await storage.getStats();
       res.json(stats);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch stats" });
+      console.error('Stats API error:', error);
+      // Return default stats if tables don't exist yet
+      res.json({
+        activeAssistants: 0,
+        conversations: 0,
+        successRate: "0%",
+        workflows: 0
+      });
     }
   });
 

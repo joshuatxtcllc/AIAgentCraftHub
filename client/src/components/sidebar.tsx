@@ -9,6 +9,7 @@ import {
   User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { FileText, Workflow } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -43,16 +44,15 @@ export function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
-            >
-              <a className={cn(
+              className={cn(
                 "flex items-center space-x-3 px-3 py-2 rounded-lg font-medium transition-colors",
                 isActive
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              )}>
-                <Icon className="w-5 h-5" />
-                <span>{item.name}</span>
-              </a>
+              )}
+            >
+              <Icon className="w-5 h-5" />
+              <span>{item.name}</span>
             </Link>
           );
         })}
