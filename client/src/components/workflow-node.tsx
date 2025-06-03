@@ -90,11 +90,11 @@ export function WorkflowNodeComponent({
         <div className={cn("w-3 h-3 rounded-full", config.color)}></div>
         <span className="text-sm font-medium text-foreground">{node.label}</span>
       </div>
-      
+
       <p className="text-xs text-muted-foreground">
         {getNodeDescription(node.type)}
       </p>
-      
+
       <div className="flex items-center space-x-2 mt-3">
         <span className={cn(
           "text-xs px-2 py-1 rounded font-medium",

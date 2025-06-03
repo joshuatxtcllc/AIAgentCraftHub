@@ -38,7 +38,7 @@ export default function Dashboard() {
       userId: 1,
       createdAt: new Date()
     };
-    
+
     setCurrentAssistant(newAssistant);
   };
 

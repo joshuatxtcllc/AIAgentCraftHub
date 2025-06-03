@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,16 +10,17 @@ import { type ChatMessage, type Assistant } from '@shared/schema';
 import { Bot, User, Send, Activity } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile'
 
 export function ChatInterface() {
   const [input, setInput] = useState('');
   const { chatMessages, addChatMessage, currentConversationId } = useAssistantStore();
-  
+
   // For demo purposes, we'll use the first assistant or create a default one
   const { data: assistants = [] } = useQuery<Assistant[]>({
     queryKey: ['/api/assistants'],
   });
-  
+
   const currentAssistant = assistants[0] || {
     id: 1,
     name: 'Test Assistant',
@@ -43,7 +44,7 @@ export function ChatInterface() {
         content: input,
         timestamp: new Date().toISOString()
       };
-      
+
       addChatMessage(userMessage);
       addChatMessage(data.response);
       setInput('');
@@ -52,7 +53,7 @@ export function ChatInterface() {
 
   const handleSendMessage = () => {
     if (!input.trim() || sendMessageMutation.isPending || !currentAssistant?.id) return;
-    
+
     sendMessageMutation.mutate({
       message: input,
       assistantId: currentAssistant.id
@@ -101,7 +102,7 @@ export function ChatInterface() {
                 </div>
               </div>
             )}
-            
+
             {/* Chat Messages */}
             {chatMessages.map((message) => (
               <div
@@ -116,7 +117,7 @@ export function ChatInterface() {
                     <Bot className="w-4 h-4 text-primary-foreground" />
                   </div>
                 )}
-                
+
                 <div className={cn("flex-1", message.role === 'user' ? "text-right" : "")}>
                   <div className={cn(
                     "rounded-lg p-3",
@@ -130,7 +131,7 @@ export function ChatInterface() {
                     {message.role === 'user' ? 'You' : 'AI Assistant'} • {formatTime(message.timestamp)}
                   </p>
                 </div>
-                
+
                 {message.role === 'user' && (
                   <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
                     <User className="w-4 h-4 text-muted-foreground" />
@@ -138,7 +139,7 @@ export function ChatInterface() {
                 )}
               </div>
             ))}
-            
+
             {/* Loading indicator */}
             {sendMessageMutation.isPending && (
               <div className="flex space-x-3">
@@ -187,7 +188,7 @@ function formatTime(timestamp: string): string {
   const date = new Date(timestamp);
   const now = new Date();
   const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-  
+
   if (diffInMinutes < 1) return 'Just now';
   if (diffInMinutes < 60) return `${diffInMinutes} min ago`;
   if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} hour ago`;

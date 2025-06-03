@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-is-mobile';
 
 const categoryIcons = {
   'Customer Service': Target,
@@ -25,7 +26,7 @@ const categoryIcons = {
 export function TemplateLibrary() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   const { data: templates = [], isLoading } = useQuery<Template[]>({
     queryKey: ['/api/templates'],
   });
@@ -89,24 +90,26 @@ export function TemplateLibrary() {
     );
   }
 
+  const isMobile = useIsMobile()
+
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-xl font-semibold">Template Library</CardTitle>
+          <CardTitle className={`font-bold ${isMobile ? 'text-xl' : 'text-2xl'}`}>Template Library</CardTitle>
           <Button variant="ghost" size="sm">
             <ExternalLink className="w-4 h-4 mr-2" />
             View All
           </Button>
         </div>
       </CardHeader>
-      
+
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${isMobile ? 'mobile-grid gap-4' : ''}`}>
           {templates.map((template) => {
             const IconComponent = categoryIcons[template.category as keyof typeof categoryIcons] || Target;
             const isLoading = useTemplateMutation.isPending;
-            
+
             return (
               <div 
                 key={template.id}
@@ -122,7 +125,7 @@ export function TemplateLibrary() {
                       <p className="text-xs text-muted-foreground">{template.category}</p>
                     </div>
                   </div>
-                  
+
                   {template.isPopular ? (
                     <Badge variant="secondary" className="bg-secondary/10 text-secondary hover:bg-secondary/20">
                       <Crown className="w-3 h-3 mr-1" />
@@ -135,18 +138,18 @@ export function TemplateLibrary() {
                     </Badge>
                   ) : null}
                 </div>
-                
+
                 <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
                   {template.description}
                 </p>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <span className="text-xs text-muted-foreground">
                       Used by {template.usageCount?.toLocaleString() || 0} teams
                     </span>
                   </div>
-                  
+
                   <Button 
                     size="sm" 
                     onClick={() => handleUseTemplate(template.id)}

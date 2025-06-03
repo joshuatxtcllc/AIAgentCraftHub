@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Play, Bot, GitBranch, CheckCircle, Plus, Save, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const workflowComponents: DragItem[] = [
   { type: 'trigger', nodeType: 'trigger', label: 'Trigger' },
@@ -37,10 +38,10 @@ export function WorkflowBuilder() {
     removeWorkflowNode,
     isDragging 
   } = useAssistantStore();
-  
+
   const canvasRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-  
+
   const {
     handleDragStart,
     handleDragEnd,
@@ -50,6 +51,8 @@ export function WorkflowBuilder() {
     handleDrop,
   } = useDragDrop();
 
+    const isMobile = useIsMobile();
+
   // Update SVG connections when nodes change
   useEffect(() => {
     updateConnections();
@@ -57,10 +60,10 @@ export function WorkflowBuilder() {
 
   const updateConnections = () => {
     if (!svgRef.current) return;
-    
+
     const svg = svgRef.current;
     svg.innerHTML = '';
-    
+
     // Create arrow marker
     const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
     const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
@@ -70,36 +73,36 @@ export function WorkflowBuilder() {
     marker.setAttribute('refX', '9');
     marker.setAttribute('refY', '3.5');
     marker.setAttribute('orient', 'auto');
-    
+
     const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
     polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
     polygon.setAttribute('fill', '#6366F1');
-    
+
     marker.appendChild(polygon);
     defs.appendChild(marker);
     svg.appendChild(defs);
-    
+
     // Draw connections
     workflowConnections.forEach(connection => {
       const sourceNode = workflowNodes.find(n => n.id === connection.source);
       const targetNode = workflowNodes.find(n => n.id === connection.target);
-      
+
       if (sourceNode && targetNode) {
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         const sourceX = sourceNode.position.x + 100; // Half node width
         const sourceY = sourceNode.position.y + 25; // Half node height
         const targetX = targetNode.position.x - 100;
         const targetY = targetNode.position.y + 25;
-        
+
         const controlX = sourceX + (targetX - sourceX) / 2;
         const d = `M ${sourceX} ${sourceY} Q ${controlX} ${sourceY} ${targetX} ${targetY}`;
-        
+
         path.setAttribute('d', d);
         path.setAttribute('stroke', '#6366F1');
         path.setAttribute('stroke-width', '2');
         path.setAttribute('fill', 'none');
         path.setAttribute('marker-end', 'url(#arrowhead)');
-        
+
         svg.appendChild(path);
       }
     });
@@ -170,7 +173,7 @@ export function WorkflowBuilder() {
       }
 
       const result = await executeResponse.json();
-      
+
       // Show results
       console.log('Workflow execution result:', result);
       alert(`Workflow executed successfully!\n\nMessages generated: ${result.messages?.length || 0}\nVariables updated: ${Object.keys(result.context?.variables || {}).length}`);
@@ -207,7 +210,7 @@ export function WorkflowBuilder() {
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-6">
         {/* Workflow Canvas */}
         <div className="relative">
@@ -228,7 +231,7 @@ export function WorkflowBuilder() {
               className="absolute inset-0 w-full h-full pointer-events-none"
               style={{ zIndex: 1 }}
             />
-            
+
             {/* Workflow Nodes */}
             <div className="relative" style={{ zIndex: 2 }}>
               {workflowNodes.map(node => (
@@ -241,7 +244,7 @@ export function WorkflowBuilder() {
                 />
               ))}
             </div>
-            
+
             {/* Empty State */}
             {workflowNodes.length === 0 && (
               <div className="absolute inset-0 flex items-center justify-center">
@@ -265,7 +268,7 @@ export function WorkflowBuilder() {
             {workflowComponents.map((component) => {
               const Icon = componentIcons[component.nodeType as keyof typeof componentIcons];
               const colorClass = componentColors[component.nodeType as keyof typeof componentColors];
-              
+
               return (
                 <div
                   key={component.type}

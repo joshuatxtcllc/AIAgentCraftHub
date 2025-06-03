@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Sidebar } from "@/components/sidebar";
 import Dashboard from "@/pages/dashboard";
 import NotFound from "@/pages/not-found";
+import { MobileNav } from "@/components/mobile-nav";
 
 function Router() {
   return (
@@ -30,6 +31,7 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Router />
+        <MobileNav />
       </TooltipProvider>
     </QueryClientProvider>
   );

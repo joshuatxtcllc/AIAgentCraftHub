@@ -5,6 +5,16 @@ export default {
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      screens: {
+        'xs': '475px',
+        'safe': '390px',
+      },
+      spacing: {
+        'safe-area-inset-top': 'env(safe-area-inset-top)',
+        'safe-area-inset-bottom': 'env(safe-area-inset-bottom)',
+        'safe-area-inset-left': 'env(safe-area-inset-left)',
+        'safe-area-inset-right': 'env(safe-area-inset-right)',
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
