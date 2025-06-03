@@ -8,6 +8,7 @@ import { AssistantConfig } from '@/components/assistant-config';
 import { ActivityFeed } from '@/components/activity-feed';
 import { NodeConfig } from '@/components/node-config';
 import { useAssistantStore } from '@/store/assistant-store';
+import { useUser } from "@/contexts/user-context";
 import { type AssistantStats } from '@shared/schema';
 import { 
   CheckCircle, 
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react';
 
 export default function Dashboard() {
+  const { user } = useUser();
   const { setCurrentAssistant, selectedNodeId } = useAssistantStore();
   const { data: stats, isLoading: statsLoading } = useQuery<AssistantStats>({
     queryKey: ['/api/stats'],
@@ -35,7 +37,7 @@ export default function Dashboard() {
       capabilities: ['conversation', 'analysis'],
       instructions: null,
       isActive: true,
-      userId: 1,
+      userId: user?.id,
       createdAt: new Date()
     };
 

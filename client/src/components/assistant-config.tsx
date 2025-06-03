@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { useAssistantStore } from '@/store/assistant-store';
+import { useUser } from '@/contexts/user-context';
 import { type InsertAssistant } from '@shared/schema';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -32,9 +33,10 @@ const availableCapabilities = [
 
 export function AssistantConfig() {
   const { currentAssistant, setCurrentAssistant } = useAssistantStore();
+  const { user } = useUser();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   const [config, setConfig] = useState<InsertAssistant>({
     name: '',
     description: '',
@@ -43,7 +45,7 @@ export function AssistantConfig() {
     capabilities: [],
     instructions: '',
     isActive: false,
-    userId: 1, // Default user
+    userId: user?.id || 0, // Default user
   });
 
   useEffect(() => {
@@ -56,10 +58,10 @@ export function AssistantConfig() {
         capabilities: currentAssistant.capabilities || [],
         instructions: currentAssistant.instructions || '',
         isActive: currentAssistant.isActive,
-        userId: currentAssistant.userId || 1,
+        userId: currentAssistant.userId || user?.id || 0,
       });
     }
-  }, [currentAssistant]);
+  }, [currentAssistant, user?.id]);
 
   const saveAssistantMutation = useMutation({
     mutationFn: async (assistantData: InsertAssistant) => {
@@ -160,7 +162,7 @@ export function AssistantConfig() {
           {currentAssistant.id === 0 ? 'Create New Assistant' : 'Edit Assistant'}
         </CardTitle>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {/* Assistant Name */}
         <div className="space-y-2">
@@ -267,7 +269,7 @@ export function AssistantConfig() {
             <Save className="w-4 h-4 mr-2" />
             {saveAssistantMutation.isPending ? 'Saving...' : 'Save Draft'}
           </Button>
-          
+
           <Button 
             onClick={handleDeploy}
             disabled={deployAssistantMutation.isPending || !config.name}

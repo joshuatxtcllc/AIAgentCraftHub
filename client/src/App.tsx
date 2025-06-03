@@ -7,6 +7,7 @@ import { Sidebar } from "@/components/sidebar";
 import Dashboard from "@/pages/dashboard";
 import NotFound from "@/pages/not-found";
 import { MobileNav } from "@/components/mobile-nav";
+import { UserProvider } from "@/contexts/user-context";
 
 function Router() {
   return (
@@ -28,11 +29,13 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-        <MobileNav />
-      </TooltipProvider>
+      <UserProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+          <MobileNav />
+        </TooltipProvider>
+      </UserProvider>
     </QueryClientProvider>
   );
 }
