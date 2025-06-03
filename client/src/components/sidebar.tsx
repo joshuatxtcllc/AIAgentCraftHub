@@ -37,6 +37,7 @@ export function Sidebar() {
       {/* Navigation Menu */}
       <nav className="flex-1 p-4 space-y-2">
         {navigation.map((item) => {
+          const Icon = item.icon;
           const isActive = location === item.href;
           return (
             <Link
@@ -49,7 +50,7 @@ export function Sidebar() {
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               )}>
-                <item.icon className="w-5 h-5" />
+                <Icon className="w-5 h-5" />
                 <span>{item.name}</span>
               </a>
             </Link>
