@@ -6,7 +6,8 @@ import {
   Layers, 
   Zap, 
   BarChart3,
-  User
+  User,
+  Code
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { FileText, Workflow } from 'lucide-react';
@@ -17,6 +18,7 @@ const navigation = [
   { name: 'Chat Assistant', href: '/chat', icon: MessageSquare },
   { name: 'Templates', href: '/templates', icon: Layers },
   { name: 'Workflows', href: '/workflows', icon: Zap },
+  { name: 'Integration', href: '/integration', icon: Code },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
 ];
 

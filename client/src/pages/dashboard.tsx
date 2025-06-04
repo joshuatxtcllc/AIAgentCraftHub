@@ -18,7 +18,8 @@ import {
   TrendingUp, 
   Zap,
   Plus,
-  Save 
+  Save,
+  Code 
 } from 'lucide-react';
 import { IntegrationGuide } from '@/components/integration-guide';
 
@@ -145,6 +146,10 @@ export default function Dashboard() {
           <Card>
             <CardContent className="p-4 space-y-3">
               <h3 className="text-sm font-semibold">Quick Actions</h3>
+              <Button size="sm" variant="outline" className="w-full" onClick={() => setActiveComponent('integration-guide')}>
+                <Code className="w-3 h-3 mr-2" />
+                View Integration Guide
+              </Button>
               {activeComponent === 'assistant-config' && (
                 <div className="space-y-2">
                   <Button size="sm" className="w-full" onClick={handleCreateAssistant}>
