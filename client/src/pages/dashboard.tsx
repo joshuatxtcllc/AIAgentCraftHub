@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,7 @@ import { ChatInterface } from '@/components/chat-interface';
 import { AssistantConfig } from '@/components/assistant-config';
 import { ActivityFeed } from '@/components/activity-feed';
 import { NodeConfig } from '@/components/node-config';
+import { StepWizard } from '@/components/step-wizard';
 import { useAssistantStore } from '@/store/assistant-store';
 import { useUser } from "@/contexts/user-context";
 import { type AssistantStats } from '@shared/schema';
@@ -25,6 +27,12 @@ export default function Dashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery<AssistantStats>({
     queryKey: ['/api/stats'],
   });
+
+  const [activeComponent, setActiveComponent] = useState('assistant-config');
+
+  const handleStepSelect = (stepId) => {
+    setActiveComponent(stepId);
+  };
 
   const handleCreateAssistant = () => {
     // Create a new assistant object with default values that matches the Assistant type
@@ -75,60 +83,96 @@ export default function Dashboard() {
 
       {/* Main Content Area */}
       <div className="flex-1 overflow-auto">
-        <div className="p-6">
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <StatCard
-              title="Active Assistants"
-              value={stats?.activeAssistants || 0}
-              icon={CheckCircle}
-              iconColor="text-primary"
-              iconBg="bg-primary/10"
-              loading={statsLoading}
-            />
-            <StatCard
-              title="Conversations"
-              value={stats?.conversations || 0}
-              icon={MessageSquare}
-              iconColor="text-secondary"
-              iconBg="bg-secondary/10"
-              loading={statsLoading}
-            />
-            <StatCard
-              title="Success Rate"
-              value={stats?.successRate || "0%"}
-              icon={TrendingUp}
-              iconColor="text-accent"
-              iconBg="bg-accent/10"
-              loading={statsLoading}
-            />
-            <StatCard
-              title="Workflows"
-              value={stats?.workflows || 0}
-              icon={Zap}
-              iconColor="text-purple-600"
-              iconBg="bg-purple-100"
-              loading={statsLoading}
-            />
-          </div>
-
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Workflow Builder & Templates */}
-            <div className="lg:col-span-2 space-y-6">
-              <WorkflowBuilder />
-              <TemplateLibrary />
-            </div>
-
-            {/* Right Column - Chat, Config & Activity */}
-            <div className="space-y-6">
-              <ChatInterface />
-              <AssistantConfig />
-              <NodeConfig nodeId={selectedNodeId} />
-              <ActivityFeed />
-            </div>
-          </div>
+        {/* Main Content Grid */}
+      <div className="flex-1 grid grid-cols-12 gap-6 p-6 overflow-auto">
+        {/* Left Column - Step Guide */}
+        <div className="col-span-12 xl:col-span-3 space-y-6">
+          <StepWizard 
+            onStepSelect={handleStepSelect} 
+            activeComponent={activeComponent}
+          />
+          <ActivityFeed />
         </div>
+
+        {/* Center Column - Main Component */}
+        <div className="col-span-12 xl:col-span-6 space-y-6">
+          {activeComponent === 'assistant-config' && (
+            <>
+              <AssistantConfig />
+              <TemplateLibrary />
+            </>
+          )}
+          {activeComponent === 'workflow-builder' && (
+            <WorkflowBuilder />
+          )}
+          {activeComponent === 'chat-interface' && (
+            <ChatInterface />
+          )}
+          {selectedNodeId && <NodeConfig />}
+        </div>
+
+        {/* Right Column - Stats & Quick Actions */}
+        <div className="col-span-12 xl:col-span-3 space-y-6">
+          {/* Quick Stats */}
+          {!statsLoading && stats && (
+            <Card>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center">
+                    <div className="flex items-center justify-center w-8 h-8 bg-primary/10 rounded-lg mx-auto mb-2">
+                      <CheckCircle className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="text-2xl font-bold">{stats.activeAssistants}</div>
+                    <div className="text-xs text-muted-foreground">Active</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="flex items-center justify-center w-8 h-8 bg-secondary/10 rounded-lg mx-auto mb-2">
+                      <MessageSquare className="w-4 h-4 text-secondary" />
+                    </div>
+                    <div className="text-2xl font-bold">{stats.conversations}</div>
+                    <div className="text-xs text-muted-foreground">Chats</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Quick Actions for Current Step */}
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <h3 className="text-sm font-semibold">Quick Actions</h3>
+              {activeComponent === 'assistant-config' && (
+                <div className="space-y-2">
+                  <Button size="sm" className="w-full" onClick={handleCreateAssistant}>
+                    <Plus className="w-3 h-3 mr-2" />
+                    New Assistant
+                  </Button>
+                  <Button size="sm" variant="outline" className="w-full" onClick={handleSaveDraft}>
+                    <Save className="w-3 h-3 mr-2" />
+                    Save Draft
+                  </Button>
+                </div>
+              )}
+              {activeComponent === 'workflow-builder' && (
+                <div className="space-y-2">
+                  <Button size="sm" className="w-full" onClick={() => setActiveComponent('chat-interface')}>
+                    <MessageSquare className="w-3 h-3 mr-2" />
+                    Test Workflow
+                  </Button>
+                </div>
+              )}
+              {activeComponent === 'chat-interface' && (
+                <div className="space-y-2">
+                  <Button size="sm" className="w-full" onClick={() => setActiveComponent('assistant-config')}>
+                    <Zap className="w-3 h-3 mr-2" />
+                    Deploy Assistant
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
       </div>
     </div>
   );

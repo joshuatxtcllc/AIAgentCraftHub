@@ -528,6 +528,11 @@ export class MemStorage implements IStorage {
       workflows: workflows.length,
     };
   }
+
+  // Alias for compatibility
+  async getStats(): Promise<AssistantStats> {
+    return this.getAssistantStats();
+  }
 }
 
 export const storage = new DatabaseStorage();
