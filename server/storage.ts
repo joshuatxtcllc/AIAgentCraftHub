@@ -213,6 +213,11 @@ export class DatabaseStorage implements IStorage {
       workflows: workflowList.length,
     };
   }
+
+  // Alias for compatibility
+  async getStats(): Promise<AssistantStats> {
+    return this.getAssistantStats();
+  }
 }
 
 export class MemStorage implements IStorage {
