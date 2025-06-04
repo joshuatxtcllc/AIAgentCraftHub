@@ -205,7 +205,7 @@ export class DatabaseStorage implements IStorage {
     const assistantList = await db.select().from(assistants);
     const conversationList = await db.select().from(conversations);
     const workflowList = await db.select().from(workflows);
-    
+
     return {
       activeAssistants: assistantList.filter(a => a.isActive).length,
       conversations: conversationList.length,
@@ -429,7 +429,7 @@ export class MemStorage implements IStorage {
   async updateAssistant(id: number, assistant: Partial<InsertAssistant>): Promise<Assistant | undefined> {
     const existing = this.assistants.get(id);
     if (!existing) return undefined;
-    
+
     const updated = { ...existing, ...assistant };
     this.assistants.set(id, updated);
     return updated;
@@ -466,7 +466,7 @@ export class MemStorage implements IStorage {
   async updateWorkflow(id: number, workflow: Partial<InsertWorkflow>): Promise<Workflow | undefined> {
     const existing = this.workflows.get(id);
     if (!existing) return undefined;
-    
+
     const updated = { ...existing, ...workflow };
     this.workflows.set(id, updated);
     return updated;
@@ -527,7 +527,7 @@ export class MemStorage implements IStorage {
   async updateConversation(id: number, conversation: Partial<InsertConversation>): Promise<Conversation | undefined> {
     const existing = this.conversations.get(id);
     if (!existing) return undefined;
-    
+
     const updated = { ...existing, ...conversation };
     this.conversations.set(id, updated);
     return updated;
@@ -556,7 +556,7 @@ export class MemStorage implements IStorage {
     const assistants = Array.from(this.assistants.values());
     const conversations = Array.from(this.conversations.values());
     const workflows = Array.from(this.workflows.values());
-    
+
     return {
       activeAssistants: assistants.filter(a => a.isActive).length,
       conversations: conversations.length,
@@ -633,7 +633,7 @@ class FallbackStorage implements IStorage {
     try {
       return await databaseStorage.createAssistant(assistant);
     } catch (error) {
-      console.warn('Database createAssistant failed, using memory storage');
+      console.warn('Database createAssistant failed, using memory storage:', error.message);
       return await memoryStorage.createAssistant(assistant);
     }
   }
