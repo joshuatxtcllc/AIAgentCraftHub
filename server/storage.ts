@@ -360,59 +360,6 @@ export class MemStorage implements IStorage {
       this.templates.set(id, { ...template, id });
     });
   }
-            { id: "c4", source: "decision", target: "escalate" }
-          ]
-        }
-      },
-      {
-        name: "HR Assistant",
-        description: "Manage employee onboarding, answer policy questions, and schedule meetings",
-        category: "Human Resources",
-        usageCount: 340,
-        isPopular: false,
-        config: {
-          name: "HR Assistant",
-          model: "gpt-4",
-          temperature: 15,
-          capabilities: ["File Analysis", "Data Analysis"],
-          instructions: "You are an HR assistant. Help employees with policies, procedures, and general HR inquiries. Maintain confidentiality and professionalism."
-        }
-      },
-      {
-        name: "Sales Lead Qualifier",
-        description: "Qualify leads, gather requirements, and schedule sales calls automatically",
-        category: "Sales & Marketing",
-        usageCount: 890,
-        isPopular: false,
-        config: {
-          name: "Sales Lead Qualifier",
-          model: "gpt-4",
-          temperature: 25,
-          capabilities: ["Web Search", "Data Analysis"],
-          instructions: "You are a sales assistant focused on qualifying leads. Ask relevant questions to understand prospect needs and budget."
-        }
-      },
-      {
-        name: "Content Writer",
-        description: "Generate blog posts, social media content, and marketing copy with brand voice",
-        category: "Content & Marketing",
-        usageCount: 2100,
-        isPopular: false,
-        config: {
-          name: "Content Writer",
-          model: "gpt-4",
-          temperature: 70,
-          capabilities: ["Web Search"],
-          instructions: "You are a creative content writer. Generate engaging, brand-appropriate content across various formats and platforms."
-        }
-      }
-    ];
-
-    defaultTemplates.forEach(template => {
-      const id = this.currentId.templates++;
-      this.templates.set(id, { ...template, id });
-    });
-  }
 
   private initializeActivities() {
     const defaultActivities: InsertActivity[] = [
