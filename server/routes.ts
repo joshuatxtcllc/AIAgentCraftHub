@@ -10,6 +10,7 @@ import { z } from "zod";
 import { db } from './db';
 import * as schema from '@shared/schema';
 import { storage } from './storage';
+import { eq } from 'drizzle-orm';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Assistant routes
@@ -427,6 +428,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
         successRate: "0%",
         workflows: 0
       });
+    }
+  });
+
+  // Integration endpoints for external apps
+  app.get('/api/assistants/active', async (req, res) => {
+    try {
+      const assistants = await db.select().from(schema.assistants).where(eq(schema.assistants.isActive, true));
+      res.json(assistants.map(a => ({
+        id: a.id,
+        name: a.name,
+        description: a.description,
+        capabilities: a.capabilities
+      })));
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch active assistants" });
+    }
+  });
+
+  // Simple chat endpoint for external integrations
+  app.post('/api/integrate/chat/:assistantId', async (req, res) => {
+    try {
+      const assistantId = parseInt(req.params.assistantId);
+      const { message, sessionId } = req.body;
+
+      if (!message) {
+        return res.status(400).json({ error: "Message is required" });
+      }
+
+      const assistant = await storage.getAssistant(assistantId);
+      if (!assistant || !assistant.isActive) {
+        return res.status(404).json({ error: "Assistant not found or inactive" });
+      }
+
+      // Create or find conversation using sessionId
+      let conversation;
+      if (sessionId) {
+        // Try to find existing conversation by session
+        const conversations = await storage.getConversations();
+        conversation = conversations.find(c => c.messages?.[0]?.id?.includes(sessionId));
+      }
+
+      if (!conversation) {
+        conversation = await storage.createConversation({
+          assistantId,
+          messages: []
+        });
+      }
+
+      const userMessage: ChatMessage = {
+        id: `${sessionId || 'session'}_${Date.now()}_user`,
+        role: "user",
+        content: message,
+        timestamp: new Date().toISOString()
+      };
+
+      // Generate AI response
+      const aiResponse = await aiService.generateResponse(
+        [...(conversation.messages || []), userMessage],
+        assistant.model,
+        assistant.temperature || 30,
+        assistant.instructions || undefined
+      );
+
+      const aiMessage: ChatMessage = {
+        id: `${sessionId || 'session'}_${Date.now()}_ai`,
+        role: "assistant",
+        content: aiResponse,
+        timestamp: new Date().toISOString()
+      };
+
+      // Update conversation
+      await storage.updateConversation(conversation.id, {
+        messages: [...(conversation.messages || []), userMessage, aiMessage]
+      });
+
+      res.json({
+        response: aiResponse,
+        sessionId: sessionId || `session_${conversation.id}`,
+        assistantName: assistant.name
+      });
+
+    } catch (error) {
+      console.error("Integration chat error:", error);
+      res.status(500).json({ error: "Failed to process message" });
     }
   });
 
