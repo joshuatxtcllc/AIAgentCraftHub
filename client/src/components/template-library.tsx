@@ -96,7 +96,7 @@ export function TemplateLibrary() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className={`font-bold ${isMobile ? 'text-xl' : 'text-2xl'}`}>Template Library</CardTitle>
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" onClick={() => window.open('/templates', '_blank')}>
             <ExternalLink className="w-4 h-4 mr-2" />
             View All
           </Button>

@@ -281,6 +281,90 @@ export class MemStorage implements IStorage {
         }
       },
       {
+        name: "Sales Assistant",
+        description: "Qualify leads, answer product questions, and schedule demos",
+        category: "Sales & Marketing",
+        usageCount: 850,
+        isPopular: true,
+        config: {
+          name: "Sales Assistant",
+          model: "gpt-4",
+          temperature: 30,
+          capabilities: ["Web Search", "Data Analysis"],
+          instructions: "You are a knowledgeable sales assistant. Help qualify leads, answer product questions, and guide prospects through the sales process."
+        },
+        workflow: {
+          nodes: [
+            { id: "start", type: "trigger", label: "Lead Inquiry", position: { x: 50, y: 50 }, data: {} },
+            { id: "qualify", type: "ai_action", label: "Qualify Lead", position: { x: 250, y: 50 }, data: {} },
+            { id: "respond", type: "output", label: "Provide Information", position: { x: 250, y: 200 }, data: {} }
+          ],
+          connections: [
+            { id: "c1", source: "start", target: "qualify" },
+            { id: "c2", source: "qualify", target: "respond" }
+          ]
+        }
+      },
+      {
+        name: "HR Onboarding Bot",
+        description: "Guide new employees through onboarding process and answer HR questions",
+        category: "Human Resources", 
+        usageCount: 420,
+        isPopular: false,
+        config: {
+          name: "HR Onboarding Bot",
+          model: "gpt-4",
+          temperature: 20,
+          capabilities: ["File Analysis"],
+          instructions: "You are an HR assistant focused on employee onboarding. Be helpful, professional, and ensure new hires have all the information they need."
+        },
+        workflow: {
+          nodes: [
+            { id: "start", type: "trigger", label: "New Employee", position: { x: 50, y: 50 }, data: {} },
+            { id: "welcome", type: "output", label: "Send Welcome", position: { x: 250, y: 50 }, data: {} }
+          ],
+          connections: [
+            { id: "c1", source: "start", target: "welcome" }
+          ]
+        }
+      },
+      {
+        name: "Content Writer",
+        description: "Create blog posts, social media content, and marketing copy",
+        category: "Content & Marketing",
+        usageCount: 125,
+        isPopular: false,
+        config: {
+          name: "Content Writer",
+          model: "gpt-4o",
+          temperature: 70,
+          capabilities: ["Web Search"],
+          instructions: "You are a creative content writer. Help create engaging blog posts, social media content, and marketing copy that resonates with the target audience."
+        },
+        workflow: {
+          nodes: [
+            { id: "start", type: "trigger", label: "Content Request", position: { x: 50, y: 50 }, data: {} },
+            { id: "research", type: "ai_action", label: "Research Topic", position: { x: 250, y: 50 }, data: {} },
+            { id: "write", type: "output", label: "Create Content", position: { x: 250, y: 200 }, data: {} }
+          ],
+          connections: [
+            { id: "c1", source: "start", target: "research" },
+            { id: "c2", source: "research", target: "write" }
+          ]
+        }
+      }
+    ];
+
+    defaultTemplates.forEach(template => {
+      const id = this.currentId.templates++;
+      this.templates.set(id, { ...template, id });
+    });
+  }
+            { id: "c4", source: "decision", target: "escalate" }
+          ]
+        }
+      },
+      {
         name: "HR Assistant",
         description: "Manage employee onboarding, answer policy questions, and schedule meetings",
         category: "Human Resources",
