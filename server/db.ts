@@ -1,15 +1,21 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
-import * as schema from "@shared/schema";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 
-neonConfig.webSocketConstructor = ws;
+const connectionString = process.env.DATABASE_URL || "postgresql://localhost:5432/assistant_builder";
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
-}
+// Configure postgres client with connection pooling and timeouts
+const client = postgres(connectionString, {
+  max: 10, // Maximum connections in pool
+  idle_timeout: 20, // Close idle connections after 20 seconds
+  connect_timeout: 10, // Timeout connection attempts after 10 seconds
+  max_lifetime: 60 * 30, // Close connections after 30 minutes
+  onnotice: () => {}, // Suppress notices
+});
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle({ client: pool, schema });
+export const db = drizzle(client);
+
+// Test database connection on startup
+client`SELECT 1`.catch((error) => {
+  console.warn('Database connection failed on startup:', error.message);
+  console.log('Falling back to memory storage for all operations');
+});

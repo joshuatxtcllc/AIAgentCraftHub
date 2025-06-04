@@ -26,8 +26,11 @@ import { IntegrationGuide } from '@/components/integration-guide';
 export default function Dashboard() {
   const { user } = useUser();
   const { setCurrentAssistant, selectedNodeId } = useAssistantStore();
-  const { data: stats, isLoading: statsLoading } = useQuery<AssistantStats>({
+  const { data: stats, isLoading: statsLoading, error: statsError } = useQuery<AssistantStats>({
     queryKey: ['/api/stats'],
+    staleTime: 30000,
+    retry: 2,
+    retryDelay: 1000,
   });
 
   const [activeComponent, setActiveComponent] = useState('assistant-config');

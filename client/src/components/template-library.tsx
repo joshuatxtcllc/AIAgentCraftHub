@@ -27,8 +27,11 @@ export function TemplateLibrary() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: templates = [], isLoading } = useQuery<Template[]>({
+  const { data: templates = [], isLoading, error } = useQuery<Template[]>({
     queryKey: ['/api/templates'],
+    staleTime: 30000, // Cache for 30 seconds
+    retry: 2,
+    retryDelay: 1000,
   });
 
   const useTemplateMutation = useMutation({

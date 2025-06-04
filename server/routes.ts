@@ -16,9 +16,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Assistant routes
   app.get("/api/assistants", async (req, res) => {
     try {
-      const assistants = await db.select().from(schema.assistants);
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Database timeout')), 5000)
+      );
+      
+      const assistants = await Promise.race([
+        storage.getAssistants(),
+        timeoutPromise
+      ]);
+      
       res.json(assistants);
     } catch (error) {
+      console.error('Get assistants error:', error);
       res.status(500).json({ message: "Failed to fetch assistants" });
     }
   });
@@ -160,9 +170,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/templates', async (req, res) => {
     try {
-      const templates = await db.select().from(schema.templates);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Database timeout')), 5000)
+      );
+      
+      const templates = await Promise.race([
+        storage.getTemplates(),
+        timeoutPromise
+      ]);
+      
       res.json(templates);
     } catch (error) {
+      console.error('Get templates error:', error);
       res.status(500).json({ message: 'Failed to fetch templates' });
     }
   });
@@ -405,11 +424,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Activity routes
   app.get('/api/activities', async (req, res) => {
     try {
-      const activities = await storage.getActivities();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Database timeout')), 3000)
+      );
+      
+      const activities = await Promise.race([
+        storage.getActivities(),
+        timeoutPromise
+      ]);
+      
       res.json(activities);
     } catch (error) {
       console.error('Activities API error:', error);
-      // Return empty array if table doesn't exist yet
+      // Return empty array if database fails
       res.json([]);
     }
   });
@@ -417,11 +444,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stats route
   app.get('/api/stats', async (req, res) => {
     try {
-      const stats = await storage.getStats();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Database timeout')), 3000)
+      );
+      
+      const stats = await Promise.race([
+        storage.getStats(),
+        timeoutPromise
+      ]);
+      
       res.json(stats);
     } catch (error) {
       console.error('Stats API error:', error);
-      // Return default stats if tables don't exist yet
+      // Return default stats if database fails
       res.json({
         activeAssistants: 0,
         conversations: 0,
@@ -570,6 +605,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         error: "Failed to execute workflow",
         details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Health check endpoint
+  app.get('/api/health', async (req, res) => {
+    try {
+      await storage.getStats();
+      res.json({ status: 'healthy', database: 'connected' });
+    } catch (error) {
+      res.status(503).json({ 
+        status: 'degraded', 
+        database: 'fallback',
+        message: 'Using memory storage due to database issues'
       });
     }
   });
