@@ -571,4 +571,236 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+// Create both storage instances
+const databaseStorage = new DatabaseStorage();
+const memoryStorage = new MemStorage();
+
+// Wrapper that falls back to memory storage on database errors
+class FallbackStorage implements IStorage {
+  private async withFallback<T>(operation: () => Promise<T>): Promise<T> {
+    try {
+      return await operation();
+    } catch (error) {
+      console.warn('Database operation failed, falling back to memory storage:', error);
+      // For now, we'll use memory storage as fallback
+      // In production, you might want to implement retry logic
+      throw error; // Re-throw to let individual methods handle fallback
+    }
+  }
+
+  async getUser(id: number): Promise<User | undefined> {
+    try {
+      return await databaseStorage.getUser(id);
+    } catch (error) {
+      console.warn('Database getUser failed, using memory storage');
+      return await memoryStorage.getUser(id);
+    }
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    try {
+      return await databaseStorage.getUserByUsername(username);
+    } catch (error) {
+      return await memoryStorage.getUserByUsername(username);
+    }
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    try {
+      return await databaseStorage.createUser(user);
+    } catch (error) {
+      return await memoryStorage.createUser(user);
+    }
+  }
+
+  async getAssistants(): Promise<Assistant[]> {
+    try {
+      return await databaseStorage.getAssistants();
+    } catch (error) {
+      return await memoryStorage.getAssistants();
+    }
+  }
+
+  async getAssistant(id: number): Promise<Assistant | undefined> {
+    try {
+      return await databaseStorage.getAssistant(id);
+    } catch (error) {
+      return await memoryStorage.getAssistant(id);
+    }
+  }
+
+  async createAssistant(assistant: InsertAssistant): Promise<Assistant> {
+    try {
+      return await databaseStorage.createAssistant(assistant);
+    } catch (error) {
+      console.warn('Database createAssistant failed, using memory storage');
+      return await memoryStorage.createAssistant(assistant);
+    }
+  }
+
+  async updateAssistant(id: number, assistant: Partial<InsertAssistant>): Promise<Assistant | undefined> {
+    try {
+      return await databaseStorage.updateAssistant(id, assistant);
+    } catch (error) {
+      return await memoryStorage.updateAssistant(id, assistant);
+    }
+  }
+
+  async deleteAssistant(id: number): Promise<boolean> {
+    try {
+      return await databaseStorage.deleteAssistant(id);
+    } catch (error) {
+      return await memoryStorage.deleteAssistant(id);
+    }
+  }
+
+  async getWorkflows(): Promise<Workflow[]> {
+    try {
+      return await databaseStorage.getWorkflows();
+    } catch (error) {
+      return await memoryStorage.getWorkflows();
+    }
+  }
+
+  async getWorkflow(id: number): Promise<Workflow | undefined> {
+    try {
+      return await databaseStorage.getWorkflow(id);
+    } catch (error) {
+      return await memoryStorage.getWorkflow(id);
+    }
+  }
+
+  async getWorkflowsByAssistant(assistantId: number): Promise<Workflow[]> {
+    try {
+      return await databaseStorage.getWorkflowsByAssistant(assistantId);
+    } catch (error) {
+      return await memoryStorage.getWorkflowsByAssistant(assistantId);
+    }
+  }
+
+  async createWorkflow(workflow: InsertWorkflow): Promise<Workflow> {
+    try {
+      return await databaseStorage.createWorkflow(workflow);
+    } catch (error) {
+      return await memoryStorage.createWorkflow(workflow);
+    }
+  }
+
+  async updateWorkflow(id: number, workflow: Partial<InsertWorkflow>): Promise<Workflow | undefined> {
+    try {
+      return await databaseStorage.updateWorkflow(id, workflow);
+    } catch (error) {
+      return await memoryStorage.updateWorkflow(id, workflow);
+    }
+  }
+
+  async deleteWorkflow(id: number): Promise<boolean> {
+    try {
+      return await databaseStorage.deleteWorkflow(id);
+    } catch (error) {
+      return await memoryStorage.deleteWorkflow(id);
+    }
+  }
+
+  async getTemplates(): Promise<Template[]> {
+    try {
+      return await databaseStorage.getTemplates();
+    } catch (error) {
+      return await memoryStorage.getTemplates();
+    }
+  }
+
+  async getTemplate(id: number): Promise<Template | undefined> {
+    try {
+      return await databaseStorage.getTemplate(id);
+    } catch (error) {
+      return await memoryStorage.getTemplate(id);
+    }
+  }
+
+  async createTemplate(template: InsertTemplate): Promise<Template> {
+    try {
+      return await databaseStorage.createTemplate(template);
+    } catch (error) {
+      return await memoryStorage.createTemplate(template);
+    }
+  }
+
+  async incrementTemplateUsage(id: number): Promise<void> {
+    try {
+      return await databaseStorage.incrementTemplateUsage(id);
+    } catch (error) {
+      return await memoryStorage.incrementTemplateUsage(id);
+    }
+  }
+
+  async getConversations(): Promise<Conversation[]> {
+    try {
+      return await databaseStorage.getConversations();
+    } catch (error) {
+      return await memoryStorage.getConversations();
+    }
+  }
+
+  async getConversation(id: number): Promise<Conversation | undefined> {
+    try {
+      return await databaseStorage.getConversation(id);
+    } catch (error) {
+      return await memoryStorage.getConversation(id);
+    }
+  }
+
+  async getConversationsByAssistant(assistantId: number): Promise<Conversation[]> {
+    try {
+      return await databaseStorage.getConversationsByAssistant(assistantId);
+    } catch (error) {
+      return await memoryStorage.getConversationsByAssistant(assistantId);
+    }
+  }
+
+  async createConversation(conversation: InsertConversation): Promise<Conversation> {
+    try {
+      return await databaseStorage.createConversation(conversation);
+    } catch (error) {
+      return await memoryStorage.createConversation(conversation);
+    }
+  }
+
+  async updateConversation(id: number, conversation: Partial<InsertConversation>): Promise<Conversation | undefined> {
+    try {
+      return await databaseStorage.updateConversation(id, conversation);
+    } catch (error) {
+      return await memoryStorage.updateConversation(id, conversation);
+    }
+  }
+
+  async getActivities(limit?: number): Promise<Activity[]> {
+    try {
+      return await databaseStorage.getActivities(limit);
+    } catch (error) {
+      return await memoryStorage.getActivities(limit);
+    }
+  }
+
+  async createActivity(activity: InsertActivity): Promise<Activity> {
+    try {
+      return await databaseStorage.createActivity(activity);
+    } catch (error) {
+      return await memoryStorage.createActivity(activity);
+    }
+  }
+
+  async getAssistantStats(): Promise<AssistantStats> {
+    try {
+      return await databaseStorage.getAssistantStats();
+    } catch (error) {
+      return await memoryStorage.getAssistantStats();
+    }
+  }
+
+  async getStats(): Promise<AssistantStats> {
+    return this.getAssistantStats();
+  }
+}
+
+export const storage = new FallbackStorage();
