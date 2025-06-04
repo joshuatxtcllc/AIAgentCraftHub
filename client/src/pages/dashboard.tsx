@@ -20,6 +20,7 @@ import {
   Plus,
   Save 
 } from 'lucide-react';
+import { IntegrationGuide } from '@/components/integration-guide';
 
 export default function Dashboard() {
   const { user } = useUser();
@@ -108,6 +109,9 @@ export default function Dashboard() {
           {activeComponent === 'chat-interface' && (
             <ChatInterface />
           )}
+          {activeComponent === 'integration-guide' && (
+            <IntegrationGuide />
+          )}
           {selectedNodeId && <NodeConfig />}
         </div>
 
@@ -166,6 +170,14 @@ export default function Dashboard() {
                   <Button size="sm" className="w-full" onClick={() => setActiveComponent('assistant-config')}>
                     <Zap className="w-3 h-3 mr-2" />
                     Deploy Assistant
+                  </Button>
+                </div>
+              )}
+              {activeComponent === 'integration-guide' && (
+                <div className="space-y-2">
+                  <Button size="sm" className="w-full" onClick={() => setActiveComponent('assistant-config')}>
+                    <Zap className="w-3 h-3 mr-2" />
+                    Back to Assistant Config
                   </Button>
                 </div>
               )}

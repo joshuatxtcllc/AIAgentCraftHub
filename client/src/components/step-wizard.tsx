@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,8 @@ import {
   Workflow, 
   MessageSquare, 
   Rocket,
-  HelpCircle
+  HelpCircle,
+  Code
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -53,8 +53,16 @@ const steps = [
     component: "chat-interface",
     validation: (store: any) => store.chatMessages?.length > 0
   },
-  {
+    {
     id: 5,
+    title: "Integration Guide",
+    description: "Learn how to integrate your assistant into your applications",
+    icon: Code,
+    component: "integration-guide",
+    validation: () => true // Assuming integration guide is always valid
+  },
+  {
+    id: 6,
     title: "Deploy Assistant",
     description: "Make your assistant active and ready for production use",
     icon: Rocket,
@@ -71,7 +79,7 @@ interface StepWizardProps {
 export function StepWizard({ onStepSelect, activeComponent }: StepWizardProps) {
   const store = useAssistantStore();
   const [currentStep, setCurrentStep] = useState(1);
-  
+
   const completedSteps = steps.filter(step => step.validation(store)).length;
   const progress = (completedSteps / steps.length) * 100;
 
