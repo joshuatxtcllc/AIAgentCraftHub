@@ -9,6 +9,7 @@ import {
 import { z } from "zod";
 import { db } from './db';
 import * as schema from '@shared/schema';
+import { storage } from './storage';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Assistant routes
