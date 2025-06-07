@@ -35,8 +35,16 @@ export default function Dashboard() {
 
   const [activeComponent, setActiveComponent] = useState('assistant-config');
 
-  const handleStepSelect = (stepId) => {
-    setActiveComponent(stepId);
+  const handleStepSelect = (stepId: number) => {
+    const stepMapping = {
+      1: 'assistant-config',
+      2: 'assistant-config', 
+      3: 'workflow-builder',
+      4: 'chat-interface',
+      5: 'integration-guide',
+      6: 'assistant-config'
+    };
+    setActiveComponent(stepMapping[stepId] || 'assistant-config');
   };
 
   const handleCreateAssistant = () => {

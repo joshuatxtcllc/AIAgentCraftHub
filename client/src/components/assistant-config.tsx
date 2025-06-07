@@ -120,12 +120,41 @@ export function AssistantConfig() {
     },
   });
 
+  const validateConfig = () => {
+    const errors = [];
+    if (!config.name.trim()) errors.push("Assistant name is required");
+    if (!config.model) errors.push("AI model must be selected");
+    if (!config.capabilities || config.capabilities.length === 0) {
+      errors.push("At least one capability must be selected");
+    }
+    return errors;
+  };
+
   const handleSave = () => {
+    const errors = validateConfig();
+    if (errors.length > 0) {
+      toast({
+        title: "Validation Error",
+        description: errors.join(", "),
+        variant: "destructive",
+      });
+      return;
+    }
     saveAssistantMutation.mutate(config);
   };
 
   const handleDeploy = () => {
-    if (currentAssistant) {
+    const errors = validateConfig();
+    if (errors.length > 0) {
+      toast({
+        title: "Validation Error", 
+        description: errors.join(", "),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (currentAssistant && currentAssistant.id > 0) {
       deployAssistantMutation.mutate();
     } else {
       // Save first, then deploy
@@ -166,13 +195,17 @@ export function AssistantConfig() {
       <CardContent className="space-y-4">
         {/* Assistant Name */}
         <div className="space-y-2">
-          <Label htmlFor="name">Assistant Name</Label>
+          <Label htmlFor="name">Assistant Name *</Label>
           <Input
             id="name"
             value={config.name}
             onChange={(e) => setConfig(prev => ({ ...prev, name: e.target.value }))}
             placeholder="Enter assistant name"
+            className={!config.name.trim() ? "border-red-300 focus:border-red-500" : ""}
           />
+          {!config.name.trim() && (
+            <p className="text-sm text-red-600">Assistant name is required</p>
+          )}
         </div>
 
         {/* Description */}
@@ -224,7 +257,7 @@ export function AssistantConfig() {
 
         {/* Capabilities */}
         <div className="space-y-2">
-          <Label>Capabilities</Label>
+          <Label>Capabilities *</Label>
           <div className="space-y-2">
             {availableCapabilities.map((capability) => (
               <div key={capability} className="flex items-center space-x-2">
@@ -244,6 +277,9 @@ export function AssistantConfig() {
               </div>
             ))}
           </div>
+          {(!config.capabilities || config.capabilities.length === 0) && (
+            <p className="text-sm text-red-600">Select at least one capability</p>
+          )}
         </div>
 
         {/* Instructions */}
@@ -262,7 +298,7 @@ export function AssistantConfig() {
         <div className="flex flex-col space-y-2 pt-4">
           <Button 
             onClick={handleSave}
-            disabled={saveAssistantMutation.isPending}
+            disabled={saveAssistantMutation.isPending || !config.name.trim()}
             variant="outline"
             className="w-full"
           >
@@ -272,7 +308,11 @@ export function AssistantConfig() {
 
           <Button 
             onClick={handleDeploy}
-            disabled={deployAssistantMutation.isPending || !config.name}
+            disabled={
+              deployAssistantMutation.isPending || 
+              !config.name.trim() || 
+              !config.capabilities?.length
+            }
             className="w-full bg-secondary hover:bg-secondary/90"
           >
             <Rocket className="w-4 h-4 mr-2" />

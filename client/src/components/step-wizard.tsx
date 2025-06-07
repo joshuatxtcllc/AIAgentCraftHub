@@ -26,7 +26,7 @@ const steps = [
     description: "Set up your AI assistant with name, model, and basic configuration",
     icon: User,
     component: "assistant-config",
-    validation: (store: any) => store.currentAssistant?.name && store.currentAssistant?.model
+    validation: (store: any) => store.currentAssistant?.name?.trim() && store.currentAssistant?.model
   },
   {
     id: 2, 
@@ -89,6 +89,12 @@ export function StepWizard({ onStepSelect, activeComponent }: StepWizardProps) {
   };
 
   const handleNext = () => {
+    const currentStepData = steps.find(step => step.id === currentStep);
+    if (currentStepData && !currentStepData.validation(store) && !currentStepData.optional) {
+      // Don't proceed if current step is not valid and not optional
+      return;
+    }
+
     if (currentStep < steps.length) {
       const nextStep = currentStep + 1;
       setCurrentStep(nextStep);

@@ -49,6 +49,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/assistants", async (req, res) => {
     try {
       const assistantData = insertAssistantSchema.parse(req.body);
+      
+      // Additional validation
+      if (!assistantData.name || !assistantData.name.trim()) {
+        return res.status(400).json({ message: "Assistant name is required" });
+      }
+      
+      if (!assistantData.capabilities || assistantData.capabilities.length === 0) {
+        return res.status(400).json({ message: "At least one capability must be selected" });
+      }
+
       const assistant = await storage.createAssistant(assistantData);
 
       // Create activity
@@ -60,10 +70,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.status(201).json(assistant);
     } catch (error) {
+      console.error("Create assistant error:", error);
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid assistant data", errors: error.errors });
+        return res.status(400).json({ 
+          message: "Invalid assistant data", 
+          errors: error.errors.map(e => ({ field: e.path.join('.'), message: e.message }))
+        });
       }
-      res.status(500).json({ message: "Failed to create assistant" });
+      res.status(500).json({ message: "Failed to create assistant", details: error.message });
     }
   });
 
