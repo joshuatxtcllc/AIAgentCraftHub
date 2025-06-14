@@ -37,12 +37,12 @@ export default function Dashboard() {
 
   const handleStepSelect = (stepId: number) => {
     const stepMapping = {
-      1: 'assistant-config',
-      2: 'assistant-config', 
-      3: 'workflow-builder',
-      4: 'chat-interface',
-      5: 'integration-guide',
-      6: 'assistant-config'
+      1: 'assistant-config',  // Basic Setup
+      2: 'assistant-config',  // Define Capabilities
+      3: 'chat-interface',    // Test & Refine
+      4: 'workflow-builder',  // Add Workflows
+      5: 'assistant-config',  // Deploy Assistant
+      6: 'integration-guide'  // Integration
     };
     setActiveComponent(stepMapping[stepId] || 'assistant-config');
   };
