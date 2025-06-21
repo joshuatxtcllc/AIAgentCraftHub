@@ -14,14 +14,14 @@ import { useIsMobile } from '@/hooks/use-mobile'
 
 export function ChatInterface() {
   const [input, setInput] = useState('');
-  const { chatMessages, addChatMessage, currentConversationId } = useAssistantStore();
+  const { chatMessages, addChatMessage, currentConversationId, currentAssistant } = useAssistantStore();
 
-  // For demo purposes, we'll use the first assistant or create a default one
+  // For demo purposes, we'll use the current assistant or first available one
   const { data: assistants = [] } = useQuery<Assistant[]>({
     queryKey: ['/api/assistants'],
   });
 
-  const currentAssistant = assistants[0] || {
+  const activeAssistant = currentAssistant || assistants[0] || {
     id: 1,
     name: 'Test Assistant',
     model: 'gpt-4',
@@ -52,11 +52,11 @@ export function ChatInterface() {
   });
 
   const handleSendMessage = () => {
-    if (!input.trim() || sendMessageMutation.isPending || !currentAssistant?.id) return;
+    if (!input.trim() || sendMessageMutation.isPending || !activeAssistant?.id) return;
 
     sendMessageMutation.mutate({
       message: input,
-      assistantId: currentAssistant.id
+      assistantId: activeAssistant.id
     });
   };
 

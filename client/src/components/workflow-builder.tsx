@@ -133,6 +133,7 @@ export function WorkflowBuilder() {
 
     try {
       // Create a temporary workflow for testing
+      const { selectedAssistant } = useAssistantStore.getState();
       const testWorkflow = {
         name: 'Test Workflow',
         description: 'Temporary workflow for testing',
