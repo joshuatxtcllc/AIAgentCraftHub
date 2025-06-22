@@ -9,6 +9,7 @@ interface AssistantStore {
   
   // Selected assistant for operations
   selectedAssistant: Assistant | null;
+  setSelectedAssistant: (assistant: Assistant | null) => void;
 
   // Current workflow being edited
   currentWorkflow: Workflow | null;
@@ -44,10 +45,9 @@ export const useAssistantStore = create<AssistantStore>((set, get) => ({
   currentAssistant: null,
   setCurrentAssistant: (assistant) => set({ currentAssistant: assistant }),
   
-  // Selected assistant (computed from current)
-  get selectedAssistant() {
-    return get().currentAssistant;
-  },
+  // Selected assistant 
+  selectedAssistant: null as Assistant | null,
+  setSelectedAssistant: (assistant: Assistant | null) => set({ selectedAssistant: assistant }),
 
   // Current workflow
   currentWorkflow: null,

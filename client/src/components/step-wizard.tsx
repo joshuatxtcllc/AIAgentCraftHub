@@ -26,7 +26,7 @@ const steps = [
     description: "Set up your AI assistant with name, model, and basic configuration",
     icon: User,
     component: "assistant-config",
-    validation: (store: any) => store.currentAssistant?.name?.trim() && store.currentAssistant?.model
+    validation: (store: any) => true // Allow progression
   },
   {
     id: 2, 
@@ -34,7 +34,7 @@ const steps = [
     description: "Select what your assistant can do and fine-tune its behavior",
     icon: Bot,
     component: "assistant-config",
-    validation: (store: any) => store.currentAssistant?.capabilities?.length > 0
+    validation: (store: any) => true // Allow progression
   },
   {
     id: 3,
@@ -51,7 +51,7 @@ const steps = [
     description: "Chat with your assistant to test its responses and behavior",
     icon: MessageSquare,
     component: "chat-interface",
-    validation: (store: any) => store.chatMessages?.length > 0
+    validation: (store: any) => true // Allow progression
   },
     {
     id: 5,
@@ -59,7 +59,7 @@ const steps = [
     description: "Learn how to integrate your assistant into your applications",
     icon: Code,
     component: "integration-guide",
-    validation: () => true // Assuming integration guide is always valid
+    validation: () => true // Always valid
   },
   {
     id: 6,
@@ -67,7 +67,7 @@ const steps = [
     description: "Make your assistant active and ready for production use",
     icon: Rocket,
     component: "assistant-config",
-    validation: (store: any) => store.currentAssistant?.isActive
+    validation: (store: any) => true // Allow progression
   }
 ];
 
@@ -89,12 +89,6 @@ export function StepWizard({ onStepSelect, activeComponent }: StepWizardProps) {
   };
 
   const handleNext = () => {
-    const currentStepData = steps.find(step => step.id === currentStep);
-    if (currentStepData && !currentStepData.validation(store) && !currentStepData.optional) {
-      // Don't proceed if current step is not valid and not optional
-      return;
-    }
-
     if (currentStep < steps.length) {
       const nextStep = currentStep + 1;
       setCurrentStep(nextStep);

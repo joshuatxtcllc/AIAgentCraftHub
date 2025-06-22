@@ -8,6 +8,24 @@ import Dashboard from "@/pages/dashboard";
 import NotFound from "@/pages/not-found";
 import { MobileNav } from "@/components/mobile-nav";
 import { UserProvider } from "@/contexts/user-context";
+import { ChatInterface } from "@/components/chat-interface";
+import { WorkflowBuilder } from "@/components/workflow-builder";
+import { TemplateLibrary } from "@/components/template-library";
+import { AssistantConfig } from "@/components/assistant-config";
+
+// Page wrapper component
+function PageWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="bg-card border-b border-border px-6 py-4">
+        <h1 className="text-2xl font-bold text-foreground">AI Assistant Builder</h1>
+      </div>
+      <div className="flex-1 overflow-auto p-6">
+        {children}
+      </div>
+    </div>
+  );
+}
 
 function Router() {
   return (
@@ -15,10 +33,10 @@ function Router() {
       <Sidebar />
       <Switch>
         <Route path="/" component={Dashboard} />
-        <Route path="/builder" component={Dashboard} />
-        <Route path="/chat" component={Dashboard} />
-        <Route path="/templates" component={Dashboard} />
-        <Route path="/workflows" component={Dashboard} />
+        <Route path="/builder" component={() => <PageWrapper><AssistantConfig /></PageWrapper>} />
+        <Route path="/chat" component={() => <PageWrapper><ChatInterface /></PageWrapper>} />
+        <Route path="/templates" component={() => <PageWrapper><TemplateLibrary /></PageWrapper>} />
+        <Route path="/workflows" component={() => <PageWrapper><WorkflowBuilder /></PageWrapper>} />
         <Route path="/analytics" component={Dashboard} />
         <Route component={NotFound} />
       </Switch>
