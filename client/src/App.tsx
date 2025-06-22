@@ -28,6 +28,42 @@ function PageWrapper({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Settings page component
+function SettingsPage() {
+  return (
+    <PageWrapper>
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-xl font-semibold mb-4">Settings</h2>
+          <p className="text-muted-foreground">Configure your application settings here.</p>
+        </div>
+        
+        <div className="grid gap-6">
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">General</h3>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Theme</label>
+              <select className="w-full p-2 border rounded">
+                <option>Light</option>
+                <option>Dark</option>
+                <option>System</option>
+              </select>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">API Settings</h3>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">OpenAI API Key</label>
+              <input type="password" className="w-full p-2 border rounded" placeholder="sk-..." />
+            </div>
+          </div>
+        </div>
+      </div>
+    </PageWrapper>
+  );
+}
+
 function Router() {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -40,6 +76,7 @@ function Router() {
         <Route path="/templates" component={() => <PageWrapper><TemplateLibrary /></PageWrapper>} />
         <Route path="/workflows" component={() => <PageWrapper><WorkflowBuilder /></PageWrapper>} />
         <Route path="/integration" component={() => <PageWrapper><IntegrationGuide /></PageWrapper>} />
+        <Route path="/settings" component={SettingsPage} />
         <Route path="/analytics" component={Dashboard} />
         <Route component={NotFound} />
       </Switch>

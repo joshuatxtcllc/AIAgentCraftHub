@@ -1,30 +1,30 @@
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { 
   LayoutDashboard, 
-  Wrench, 
-  MessageSquare, 
-  Layers, 
+  Settings, 
   Zap, 
   BarChart3,
   User,
   Code,
   Menu,
-  X
+  X,
+  FileText, 
+  Workflow 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { FileText, Workflow } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Assistant Builder', href: '/builder', icon: Wrench },
-  { name: 'Chat Assistant', href: '/chat', icon: MessageSquare },
-  { name: 'Templates', href: '/templates', icon: Layers },
-  { name: 'Workflows', href: '/workflows', icon: Zap },
+  { name: 'Assistant Builder', href: '/builder', icon: Zap },
+  { name: 'Chat Interface', href: '/chat', icon: FileText },
+  { name: 'Templates', href: '/templates', icon: FileText },
+  { name: 'Workflows', href: '/workflows', icon: Workflow },
   { name: 'Integration', href: '/integration', icon: Code },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
 export function Sidebar() {
@@ -102,7 +102,7 @@ function SidebarContent() {
       <div className="p-5 border-b border-border">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <Wrench className="w-5 h-5 text-primary-foreground" />
+            <Zap className="w-5 h-5 text-primary-foreground" />
           </div>
           <span className="text-lg font-semibold text-foreground">AI Builder</span>
         </div>
