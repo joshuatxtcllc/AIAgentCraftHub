@@ -146,6 +146,3 @@ function SidebarContent() {
     </>
   );
 }
-    </div>
-  );
-}
