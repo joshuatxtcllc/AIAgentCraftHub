@@ -78,19 +78,19 @@
   .drag-handle {
     cursor: grab;
   }
-  
+
   .drag-handle:active {
     cursor: grabbing;
   }
-  
+
   .gradient-bg {
     background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
   }
-  
+
   .chat-bubble {
     animation: slideUp 0.3s ease-out;
   }
-  
+
   @keyframes slideUp {
     from { 
       opacity: 0; 
@@ -101,79 +101,79 @@
       transform: translateY(0); 
     }
   }
-  
+
   /* Mobile optimizations */
   .mobile-container {
     @apply px-4 py-2;
   }
-  
+
   .mobile-button {
     @apply min-h-[44px] min-w-[44px] touch-manipulation;
   }
-  
+
   .mobile-input {
     @apply text-base; /* Prevents zoom on iOS */
   }
-  
+
   .mobile-card {
     @apply mx-2 mb-4;
   }
-  
+
   .mobile-workflow-node {
     @apply min-w-[280px] mx-2;
   }
-  
+
   .mobile-chat {
     @apply pb-safe-area-inset-bottom;
   }
-  
+
   /* Touch-friendly scrollbars */
   .mobile-scroll::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
-  
+
   .mobile-scroll::-webkit-scrollbar-track {
     @apply bg-muted/50;
   }
-  
+
   .mobile-scroll::-webkit-scrollbar-thumb {
     @apply bg-muted-foreground/30 rounded-full;
   }
-  
+
   /* Safe area support */
   .safe-area-top {
     padding-top: env(safe-area-inset-top);
   }
-  
+
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }
-  
+
   /* Responsive grid */
   .mobile-grid {
     @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3;
   }
-  
+
   /* Mobile-first navigation */
   .mobile-nav {
-    @apply fixed bottom-0 left-0 right-0 bg-card border-t border-border z-40;
+    @apply fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur-sm;
   }
-  
+
   /* Mobile sidebar animations */
   .mobile-sidebar-enter {
     transform: translateX(-100%);
   }
-  
+
   .mobile-sidebar-enter-active {
     transform: translateX(0);
     transition: transform 300ms ease-in-out;
   }
-  
+
   .mobile-sidebar-exit {
     transform: translateX(0);
   }
-  
+
   .mobile-sidebar-exit-active {
     transform: translateX(-100%);
     transition: transform 300ms ease-in-out;

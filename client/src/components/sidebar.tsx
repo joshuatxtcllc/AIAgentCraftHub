@@ -42,7 +42,7 @@ export function Sidebar() {
   // Close sidebar when clicking outside on mobile
   useEffect(() => {
     if (!isMobile || !isOpen) return;
-    
+
     const handleClickOutside = (event: MouseEvent) => {
       const sidebar = document.getElementById('mobile-sidebar');
       if (sidebar && !sidebar.contains(event.target as Node)) {

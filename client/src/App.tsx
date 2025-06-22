@@ -12,6 +12,7 @@ import { ChatInterface } from "@/components/chat-interface";
 import { WorkflowBuilder } from "@/components/workflow-builder";
 import { TemplateLibrary } from "@/components/template-library";
 import { AssistantConfig } from "@/components/assistant-config";
+import { IntegrationGuide } from "@/components/integration-guide";
 
 // Page wrapper component
 function PageWrapper({ children }: { children: React.ReactNode }) {
@@ -31,15 +32,18 @@ function Router() {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden pt-16 md:pt-0">
       <Switch>
         <Route path="/" component={Dashboard} />
         <Route path="/builder" component={() => <PageWrapper><AssistantConfig /></PageWrapper>} />
         <Route path="/chat" component={() => <PageWrapper><ChatInterface /></PageWrapper>} />
         <Route path="/templates" component={() => <PageWrapper><TemplateLibrary /></PageWrapper>} />
         <Route path="/workflows" component={() => <PageWrapper><WorkflowBuilder /></PageWrapper>} />
+        <Route path="/integration" component={() => <PageWrapper><IntegrationGuide /></PageWrapper>} />
         <Route path="/analytics" component={Dashboard} />
         <Route component={NotFound} />
       </Switch>
+      </div>
     </div>
   );
 }
