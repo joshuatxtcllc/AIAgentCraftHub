@@ -21,12 +21,30 @@ export function ChatInterface() {
     queryKey: ['/api/assistants'],
   });
 
-  const activeAssistant = currentAssistant || assistants[0] || {
-    id: 1,
-    name: 'Test Assistant',
-    model: 'gpt-4',
-    isActive: true
-  };
+  const activeAssistant = currentAssistant || assistants[0];
+
+  // If no assistant is available, show create assistant message
+  if (!activeAssistant) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">Chat Interface</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center justify-center h-64 text-center space-y-4">
+          <Bot className="w-12 h-12 text-muted-foreground" />
+          <div className="space-y-2">
+            <h3 className="text-lg font-medium">No Assistant Available</h3>
+            <p className="text-muted-foreground max-w-md">
+              Create an assistant first using the step-by-step wizard to start chatting.
+            </p>
+          </div>
+          <Button onClick={() => window.location.href = '/'} variant="outline">
+            Go to Dashboard
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const sendMessageMutation = useMutation({
     mutationFn: async ({ message, assistantId }: { message: string; assistantId: number }) => {
@@ -52,7 +70,7 @@ export function ChatInterface() {
   });
 
   const handleSendMessage = () => {
-    if (!input.trim() || sendMessageMutation.isPending || !activeAssistant?.id) return;
+    if (!input.trim() || sendMessageMutation.isPending || !activeAssistant) return;
 
     sendMessageMutation.mutate({
       message: input,
@@ -71,7 +89,7 @@ export function ChatInterface() {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold">Test Assistant</CardTitle>
+          <CardTitle className="text-lg font-semibold">{activeAssistant.name}</CardTitle>
           <div className="flex items-center space-x-2">
             <div className="w-2 h-2 bg-secondary rounded-full animate-pulse"></div>
             <Badge variant="secondary" className="bg-secondary/10 text-secondary">
