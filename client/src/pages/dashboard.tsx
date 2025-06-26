@@ -30,8 +30,10 @@ export default function Dashboard() {
   });
 
   const [activeComponent, setActiveComponent] = useState('assistant-config');
+  const [currentStep, setCurrentStep] = useState(1);
 
   const handleStepSelect = (stepId: number) => {
+    setCurrentStep(stepId);
     const stepMapping = {
       1: 'assistant-config',  // Create Assistant
       2: 'assistant-config',  // Configure Capabilities  
@@ -73,7 +75,7 @@ export default function Dashboard() {
           </div>
           <Button onClick={handleCreateAssistant} variant="outline">
             <Plus className="w-4 h-4 mr-2" />
-            Start Over
+            Start
           </Button>
         </div>
       </div>
@@ -116,11 +118,34 @@ export default function Dashboard() {
 
           {/* Right Column - Current Step Content */}
           <div className="col-span-12 lg:col-span-8 space-y-6">
-            {activeComponent === 'assistant-config' && (
+            {activeComponent === 'assistant-config' && currentStep === 1 && (
               <div className="space-y-6">
-                <AssistantConfig />
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Welcome to AI Assistant Builder</CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      Choose how you want to create your assistant
+                    </p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <h3 className="text-lg font-semibold mb-4">Pick a template or build from scratch</h3>
+                      <p className="text-muted-foreground mb-6">
+                        Select a pre-built template below to get started quickly, or scroll down and click "Next" to build your assistant from scratch.
+                      </p>
+                      <div className="flex justify-center">
+                        <Button onClick={() => setCurrentStep(2)} className="mr-4">
+                          Build from Scratch
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
                 <TemplateLibrary />
               </div>
+            )}
+            {activeComponent === 'assistant-config' && currentStep !== 1 && (
+              <AssistantConfig />
             )}
             {activeComponent === 'workflow-builder' && (
               <WorkflowBuilder />

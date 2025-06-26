@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -78,7 +77,7 @@ export function StepWizard({ onStepSelect, activeComponent }: StepWizardProps) {
 
   const canProceed = (stepId: number): boolean => {
     const { currentAssistant } = store;
-    
+
     switch (stepId) {
       case 1:
         return true; // Always can start
@@ -143,7 +142,7 @@ export function StepWizard({ onStepSelect, activeComponent }: StepWizardProps) {
             <Badge variant="outline" className="text-xs">Optional</Badge>
           )}
         </div>
-        
+
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Progress</span>
@@ -208,7 +207,7 @@ export function StepWizard({ onStepSelect, activeComponent }: StepWizardProps) {
             onClick={handleNext}
             disabled={currentStep === steps.length || !canProceed(currentStep + 1)}
           >
-            {currentStep === 1 ? 'Create Agent' : currentStep === steps.length ? 'Complete' : 'Next'}
+            {currentStep === 1 ? 'Start' : currentStep === steps.length ? 'Complete' : 'Next'}
             <ChevronRight className="w-4 h-4 ml-1" />
           </Button>
         </div>
@@ -216,8 +215,7 @@ export function StepWizard({ onStepSelect, activeComponent }: StepWizardProps) {
         {/* Validation Messages */}
         {!canProceed(currentStep + 1) && currentStep < steps.length && (
           <div className="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
-            {currentStep === 1 && "Please enter an assistant name to continue"}
-            {currentStep === 2 && "Please select at least one capability to continue"}
+            {currentStep === 2 && "Please enter an assistant name and select capabilities to continue"}
             {currentStep === 5 && "Please save and deploy your assistant to complete"}
           </div>
         )}
@@ -225,3 +223,4 @@ export function StepWizard({ onStepSelect, activeComponent }: StepWizardProps) {
     </Card>
   );
 }
+`
