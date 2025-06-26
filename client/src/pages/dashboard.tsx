@@ -131,7 +131,7 @@ export default function Dashboard() {
             {activeComponent === 'integration-guide' && (
               <IntegrationGuide />
             )}
-            {selectedNodeId && <NodeConfig />}
+            {selectedNodeId && <NodeConfig nodeId={selectedNodeId} />}
           </div>
         </div>
       </div>

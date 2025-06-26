@@ -114,6 +114,10 @@ export function WorkflowBuilder() {
     setSelectedNodeId(selectedNodeId === nodeId ? null : nodeId);
   };
 
+  const handleNodeEdit = (nodeId: string) => {
+    setSelectedNodeId(nodeId);
+  };
+
   const handleNodeDelete = (nodeId: string) => {
     removeWorkflowNode(nodeId);
     if (selectedNodeId === nodeId) {
@@ -258,6 +262,7 @@ export function WorkflowBuilder() {
                   node={node}
                   isSelected={selectedNodeId === node.id}
                   onSelect={handleNodeSelect}
+                  onEdit={handleNodeEdit}
                   onDelete={handleNodeDelete}
                 />
               ))}

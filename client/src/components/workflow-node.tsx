@@ -7,6 +7,7 @@ interface WorkflowNodeComponentProps {
   node: WorkflowNode;
   isSelected?: boolean;
   onSelect?: (nodeId: string) => void;
+  onEdit?: (nodeId: string) => void;
   onDelete?: (nodeId: string) => void;
 }
 
@@ -41,6 +42,7 @@ export function WorkflowNodeComponent({
   node, 
   isSelected = false, 
   onSelect, 
+  onEdit,
   onDelete 
 }: WorkflowNodeComponentProps) {
   const { updateWorkflowNode } = useAssistantStore();
@@ -50,6 +52,11 @@ export function WorkflowNodeComponent({
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onSelect?.(node.id);
+  };
+
+   const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit?.(node.id);
   };
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -78,6 +85,16 @@ export function WorkflowNodeComponent({
       draggable
       onDragStart={handleDrag}
     >
+       {/* Edit button */}
+      <button
+        onClick={handleEdit}
+        className="absolute -top-2 -left-2 w-6 h-6 bg-muted text-muted-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-muted/80"
+      >
+       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
+          <path d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-12.15 12.15a5.25 5.25 0 00-1.32 2.214l-.082.285a.75.75 0 00.693.943h.285l2.214-1.32L19.513 8.199z" />
+        </svg>
+      </button>
+
       {/* Delete button */}
       <button
         onClick={handleDelete}

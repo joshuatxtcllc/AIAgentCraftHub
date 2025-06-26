@@ -105,6 +105,14 @@ export function StepWizard({ onStepSelect, activeComponent }: StepWizardProps) {
     }
   };
 
+  const handleStepClick = (stepId: number) => {
+    // Only allow clicking on current step or previous completed steps
+    if (stepId <= currentStep) {
+      setCurrentStep(stepId);
+      onStepSelect(stepId);
+    }
+  };
+
   const handlePrevious = () => {
     if (currentStep > 1) {
       const prevStep = currentStep - 1;
@@ -156,12 +164,16 @@ export function StepWizard({ onStepSelect, activeComponent }: StepWizardProps) {
         <div className="flex items-center justify-between">
           {steps.map((step, index) => (
             <div key={step.id} className="flex flex-col items-center space-y-1">
-              <div className={cn(
-                "w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-medium",
-                index < currentStep - 1 ? "bg-primary border-primary text-primary-foreground" : 
-                index === currentStep - 1 ? "border-primary text-primary" : 
-                "border-muted-foreground/30 text-muted-foreground"
-              )}>
+              <div 
+                className={cn(
+                  "w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-medium transition-colors",
+                  index < currentStep - 1 ? "bg-primary border-primary text-primary-foreground cursor-pointer hover:bg-primary/90" : 
+                  index === currentStep - 1 ? "border-primary text-primary" : 
+                  "border-muted-foreground/30 text-muted-foreground cursor-not-allowed",
+                  index < currentStep ? "cursor-pointer" : "cursor-not-allowed"
+                )}
+                onClick={() => handleStepClick(step.id)}
+              >
                 {index < currentStep - 1 ? (
                   <CheckCircle className="w-4 h-4" />
                 ) : (
@@ -196,7 +208,7 @@ export function StepWizard({ onStepSelect, activeComponent }: StepWizardProps) {
             onClick={handleNext}
             disabled={currentStep === steps.length || !canProceed(currentStep + 1)}
           >
-            {currentStep === steps.length ? 'Complete' : 'Next'}
+            {currentStep === 1 ? 'Create Agent' : currentStep === steps.length ? 'Complete' : 'Next'}
             <ChevronRight className="w-4 h-4 ml-1" />
           </Button>
         </div>
