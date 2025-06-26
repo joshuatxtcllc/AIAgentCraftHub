@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Play, Bot, GitBranch, CheckCircle, Plus, Save, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useToast } from '@/hooks/use-toast';
 
 const workflowComponents: DragItem[] = [
   { type: 'trigger', nodeType: 'trigger', label: 'Trigger' },
@@ -38,6 +39,7 @@ export function WorkflowBuilder() {
     removeWorkflowNode,
     isDragging 
   } = useAssistantStore();
+  const { toast } = useToast();
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -121,13 +123,21 @@ export function WorkflowBuilder() {
 
   const handleTestWorkflow = async () => {
     if (workflowNodes.length === 0) {
-      alert('Please add some nodes to test the workflow');
+      toast({
+        title: "No Workflow to Test",
+        description: "Please add some nodes to test the workflow",
+        variant: "destructive"
+      });
       return;
     }
 
     const triggerNode = workflowNodes.find(node => node.type === 'trigger');
     if (!triggerNode) {
-      alert('Please add a trigger node to test the workflow');
+      toast({
+        title: "Missing Trigger",
+        description: "Please add a trigger node to test the workflow",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -177,11 +187,18 @@ export function WorkflowBuilder() {
 
       // Show results
       console.log('Workflow execution result:', result);
-      alert(`Workflow executed successfully!\n\nMessages generated: ${result.messages?.length || 0}\nVariables updated: ${Object.keys(result.context?.variables || {}).length}`);
+      toast({
+        title: "Workflow Test Successful!",
+        description: `Generated ${result.messages?.length || 0} messages, updated ${Object.keys(result.context?.variables || {}).length} variables`
+      });
 
     } catch (error) {
       console.error('Workflow test error:', error);
-      alert('Failed to test workflow: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      toast({
+        title: "Workflow Test Failed",
+        description: error instanceof Error ? error.message : 'Unknown error occurred',
+        variant: "destructive"
+      });
     }
   };
 
