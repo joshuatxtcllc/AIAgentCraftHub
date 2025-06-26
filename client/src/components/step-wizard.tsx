@@ -223,4 +223,3 @@ export function StepWizard({ onStepSelect, activeComponent }: StepWizardProps) {
     </Card>
   );
 }
-`
