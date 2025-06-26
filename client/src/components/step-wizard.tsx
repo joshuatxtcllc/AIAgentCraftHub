@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,13 +9,11 @@ import {
   ChevronRight, 
   ChevronLeft, 
   CheckCircle, 
-  Circle, 
   User, 
   Bot, 
   Workflow, 
   MessageSquare, 
   Rocket,
-  HelpCircle,
   Code
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -25,24 +24,21 @@ const steps = [
     title: "Create Assistant",
     description: "Set up your AI assistant with name, model, and basic configuration",
     icon: User,
-    component: "assistant-config",
-    validation: (store: any) => true // Allow progression
+    component: "assistant-config"
   },
   {
     id: 2, 
     title: "Configure Capabilities",
     description: "Select what your assistant can do and fine-tune its behavior",
     icon: Bot,
-    component: "assistant-config",
-    validation: (store: any) => true // Allow progression
+    component: "assistant-config"
   },
   {
     id: 3,
     title: "Build Workflow (Optional)",
     description: "Create custom workflows to handle complex tasks and logic",
     icon: Workflow,
-    component: "workflow-builder", 
-    validation: () => true, // Optional step
+    component: "workflow-builder",
     optional: true
   },
   {
@@ -50,24 +46,21 @@ const steps = [
     title: "Test Your Assistant",
     description: "Chat with your assistant to test its responses and behavior",
     icon: MessageSquare,
-    component: "chat-interface",
-    validation: (store: any) => true // Allow progression
+    component: "chat-interface"
   },
-    {
+  {
     id: 5,
     title: "Integration Guide",
     description: "Learn how to integrate your assistant into your applications",
     icon: Code,
-    component: "integration-guide",
-    validation: () => true // Always valid
+    component: "integration-guide"
   },
   {
     id: 6,
     title: "Deploy Assistant",
     description: "Make your assistant active and ready for production use",
     icon: Rocket,
-    component: "assistant-config",
-    validation: (store: any) => true // Allow progression
+    component: "assistant-config"
   }
 ];
 
@@ -80,16 +73,32 @@ export function StepWizard({ onStepSelect, activeComponent }: StepWizardProps) {
   const store = useAssistantStore();
   const [currentStep, setCurrentStep] = useState(1);
 
-  const completedSteps = steps.filter(step => step.validation(store)).length;
+  const completedSteps = currentStep - 1;
   const progress = (completedSteps / steps.length) * 100;
 
-  const handleStepClick = (stepId: number) => {
-    setCurrentStep(stepId);
-    onStepSelect(stepId);
+  const canProceed = (stepId: number): boolean => {
+    const { currentAssistant } = store;
+    
+    switch (stepId) {
+      case 1:
+        return true; // Always can start
+      case 2:
+        return currentAssistant?.name?.trim().length > 0;
+      case 3:
+        return currentAssistant?.capabilities?.length > 0;
+      case 4:
+        return true; // Workflow is optional
+      case 5:
+        return true; // Can always test
+      case 6:
+        return currentAssistant?.name?.trim().length > 0 && currentAssistant?.capabilities?.length > 0;
+      default:
+        return true;
+    }
   };
 
   const handleNext = () => {
-    if (currentStep < steps.length) {
+    if (currentStep < steps.length && canProceed(currentStep + 1)) {
       const nextStep = currentStep + 1;
       setCurrentStep(nextStep);
       onStepSelect(nextStep);
@@ -104,15 +113,29 @@ export function StepWizard({ onStepSelect, activeComponent }: StepWizardProps) {
     }
   };
 
+  const currentStepData = steps[currentStep - 1];
+  const Icon = currentStepData.icon;
+
   return (
     <Card className="h-fit">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold">Assistant Builder Guide</CardTitle>
-          <Badge variant="secondary">
-            {completedSteps}/{steps.length} Complete
-          </Badge>
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center justify-center w-10 h-10 bg-primary/10 rounded-lg">
+              <Icon className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-lg font-semibold">
+                Step {currentStep} of {steps.length}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">{currentStepData.title}</p>
+            </div>
+          </div>
+          {currentStepData.optional && (
+            <Badge variant="outline" className="text-xs">Optional</Badge>
+          )}
         </div>
+        
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Progress</span>
@@ -122,61 +145,35 @@ export function StepWizard({ onStepSelect, activeComponent }: StepWizardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-3">
-        {steps.map((step) => {
-          const Icon = step.icon;
-          const isCompleted = step.validation(store);
-          const isCurrent = currentStep === step.id;
-          const isActive = activeComponent === step.component;
+      <CardContent className="space-y-4">
+        {/* Current Step Description */}
+        <div className="p-4 bg-muted/30 rounded-lg">
+          <h3 className="font-medium text-foreground mb-2">{currentStepData.title}</h3>
+          <p className="text-sm text-muted-foreground">{currentStepData.description}</p>
+        </div>
 
-          return (
-            <div
-              key={step.id}
-              className={cn(
-                "flex items-start space-x-3 p-3 rounded-lg border transition-all cursor-pointer",
-                isCurrent && "border-primary bg-primary/5",
-                isActive && "border-secondary bg-secondary/5",
-                !isCurrent && !isActive && "border-border hover:border-muted-foreground/50"
-              )}
-              onClick={() => handleStepClick(step.id)}
-            >
+        {/* Step Progress Indicators */}
+        <div className="flex items-center justify-between">
+          {steps.map((step, index) => (
+            <div key={step.id} className="flex flex-col items-center space-y-1">
               <div className={cn(
-                "flex items-center justify-center w-6 h-6 rounded-full border-2 mt-0.5",
-                isCompleted ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground",
-                isCurrent && !isCompleted && "border-primary"
+                "w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-medium",
+                index < currentStep - 1 ? "bg-primary border-primary text-primary-foreground" : 
+                index === currentStep - 1 ? "border-primary text-primary" : 
+                "border-muted-foreground/30 text-muted-foreground"
               )}>
-                {isCompleted ? (
+                {index < currentStep - 1 ? (
                   <CheckCircle className="w-4 h-4" />
                 ) : (
-                  <span className="text-xs font-medium">{step.id}</span>
+                  step.id
                 )}
               </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center space-x-2">
-                  <h3 className={cn(
-                    "text-sm font-medium",
-                    isCompleted && "text-primary",
-                    isCurrent && "text-foreground"
-                  )}>
-                    {step.title}
-                  </h3>
-                  {step.optional && (
-                    <Badge variant="outline" className="text-xs">Optional</Badge>
-                  )}
-                  <Icon className={cn(
-                    "w-4 h-4",
-                    isCompleted && "text-primary",
-                    isCurrent && "text-foreground"
-                  )} />
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {step.description}
-                </p>
-              </div>
+              <span className="text-xs text-center max-w-16 leading-tight">
+                {step.title.split(' ')[0]}
+              </span>
             </div>
-          );
-        })}
+          ))}
+        </div>
 
         {/* Navigation Buttons */}
         <div className="flex items-center justify-between pt-4 border-t">
@@ -190,27 +187,28 @@ export function StepWizard({ onStepSelect, activeComponent }: StepWizardProps) {
             Previous
           </Button>
 
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs"
-            >
-              <HelpCircle className="w-3 h-3 mr-1" />
-              Help
-            </Button>
+          <div className="text-xs text-muted-foreground">
+            {currentStep}/{steps.length}
           </div>
 
           <Button
-            variant="default"
             size="sm"
             onClick={handleNext}
-            disabled={currentStep === steps.length}
+            disabled={currentStep === steps.length || !canProceed(currentStep + 1)}
           >
-            Next
+            {currentStep === steps.length ? 'Complete' : 'Next'}
             <ChevronRight className="w-4 h-4 ml-1" />
           </Button>
         </div>
+
+        {/* Validation Messages */}
+        {!canProceed(currentStep + 1) && currentStep < steps.length && (
+          <div className="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
+            {currentStep === 1 && "Please enter an assistant name to continue"}
+            {currentStep === 2 && "Please select at least one capability to continue"}
+            {currentStep === 5 && "Please save and deploy your assistant to complete"}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

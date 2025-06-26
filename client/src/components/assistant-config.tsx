@@ -294,30 +294,29 @@ export function AssistantConfig() {
           />
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col space-y-2 pt-4">
+        {/* Primary Action Button */}
+        <div className="pt-4">
           <Button 
             onClick={handleSave}
             disabled={saveAssistantMutation.isPending || !config.name.trim()}
-            variant="outline"
             className="w-full"
           >
             <Save className="w-4 h-4 mr-2" />
-            {saveAssistantMutation.isPending ? 'Saving...' : 'Save Draft'}
+            {saveAssistantMutation.isPending ? 'Saving...' : 'Save Configuration'}
           </Button>
-
-          <Button 
-            onClick={handleDeploy}
-            disabled={
-              deployAssistantMutation.isPending || 
-              !config.name.trim() || 
-              !config.capabilities?.length
-            }
-            className="w-full bg-secondary hover:bg-secondary/90"
-          >
-            <Rocket className="w-4 h-4 mr-2" />
-            {deployAssistantMutation.isPending ? 'Deploying...' : 'Deploy Assistant'}
-          </Button>
+          
+          {/* Deploy button only shows on final step */}
+          {config.name.trim() && config.capabilities?.length > 0 && (
+            <Button 
+              onClick={handleDeploy}
+              disabled={deployAssistantMutation.isPending}
+              variant="secondary"
+              className="w-full mt-2"
+            >
+              <Rocket className="w-4 h-4 mr-2" />
+              {deployAssistantMutation.isPending ? 'Deploying...' : 'Deploy Assistant'}
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
